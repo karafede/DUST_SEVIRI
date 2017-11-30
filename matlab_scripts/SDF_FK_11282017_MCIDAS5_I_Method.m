@@ -204,3 +204,5 @@ netcdf.putVar(ncid,varid3,LAT(:,1));
 netcdf.close(ncid)
 
 end
+
+%%%%%% end of the script
