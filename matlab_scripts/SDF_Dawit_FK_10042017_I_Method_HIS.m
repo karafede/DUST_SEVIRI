@@ -1,5 +1,5 @@
-n1 = datenum(2015,04,01);   % start date
-n2 = datenum(2015,04,04);   % end date
+n1 = datenum(2011,08,04);   % start date
+n2 = datenum(2011,12,31);   % end date
 
 % [Dust_monthly{1:12}] = deal(zeros(1500));
 %%%% 4 datasets every 15 minutes = 4 x 24 hours = 96......images by day
@@ -26,15 +26,15 @@ for n = n1:n2
     %
     
     
-  for t = n - 8:n - 1 %% the last 8 days for reference   
+  for t = n - 7:n - 1 %% the last 7 days for reference   
        count1 = 0;
        for k =1:4    % loop for the quarter of the day (4 files per day)
            % A1 is T07 and A2 is T09
             clearvars A1 A2 fields1 fields2
             try
-                A1=load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\T07_',datestr(t,'yyyymmdd'),'_P',num2str(k),'.mat'));
+                A1=load(strcat('Y:\EUMETSAT\T07\T07_',datestr(t,'yyyymmdd'),'_P',num2str(k),'.mat'));
                 fields1=fieldnames(A1);
-                A2=load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\T09_',datestr(t,'yyyymmdd'),'_P',num2str(k),'.mat'));
+                A2=load(strcat('Y:\EUMETSAT\T09\T09_',datestr(t,'yyyymmdd'),'_P',num2str(k),'.mat'));
                 fields2=fieldnames(A2);
             catch
                 count1 = count1 + 24;
@@ -76,7 +76,7 @@ for n = n1:n2
         clearvars B1 B2 B3 fields1 fields2 fields3
         try
             % importing B1 from the mat file
-            B1 = load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\T10_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat'));
+            B1 = load(strcat('Y:\EUMETSAT\T10\T10_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat'));
             fields1=fieldnames(B1);
         catch
             % if there is an error then put the filename in Missing_file
@@ -84,14 +84,14 @@ for n = n1:n2
             Missing_file{count3} = strcat('T10_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat');
         end
         try
-            B2 = load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\T09_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat'));
+            B2 = load(strcat('Y:\EUMETSAT\T09\T09_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat'));
             fields2=fieldnames(B2);
         catch
             count3 = count3 + 1;
             Missing_file{count3} = strcat('T09_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat');
         end
         try
-            B3 = load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\T07_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat'));
+            B3 = load(strcat('Y:\EUMETSAT\T07\T07_',datestr(n,'yyyymmdd'),'_P',num2str(m),'.mat'));
             fields3=fieldnames(B3);
         catch
             count3 = count3 + 1;
@@ -157,7 +157,8 @@ for n = n1:n2
     
     %Dust_monthly{DateVector(2)} = sum(cat(3,Dust_monthly{DateVector(2)},Dust_daily_sum{day_num}),3);
     
-    filename = ['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_',datestr(n,'yyyymmdd')];
+    % output folder
+    filename = ['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\DUST_Mask_',datestr(n,'yyyymmdd')];
 save (filename,'Dust_daily_each_time_step', '-v7.3')
     
 end
@@ -186,7 +187,7 @@ end
 
 
 for n = n1:n2
- load(['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_',datestr(n,'yyyymmdd'),'.mat']);
+ load(['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\DUST_Mask_',datestr(n,'yyyymmdd'),'.mat']);
 
 % load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150329.mat')
 % load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150330.mat')
@@ -240,7 +241,7 @@ dimid(2)=netcdf.defDim(ncid,'lon',1500);
 dimid(3)=netcdf.defDim(ncid,'time',96);
 
 % name of the NetCDF fields
-varid1=netcdf.defVar(ncid, 'SEVIRI_DF' ,'NC_DOUBLE',dimid);
+varid1=netcdf.defVar(ncid, 'SEVIRI_DUST' ,'NC_DOUBLE',dimid);
 varid2 = netcdf.defVar(ncid, 'lon', 'NC_DOUBLE', dimid(2));
 varid3 = netcdf.defVar(ncid, 'lat', 'NC_DOUBLE', dimid(1));
 %varid4 = netcdf.defVar(ncid, 'time', 'NC_DOUBLE', dimid(3));
