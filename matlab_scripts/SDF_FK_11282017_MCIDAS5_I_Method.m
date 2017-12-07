@@ -1,8 +1,8 @@
-clc
-clear
+% clc
+% clear
 
-n1 = datenum(2009,01,05);  % start data
-n2 = datenum(2009,01,07);  % end date
+n1 = datenum(2005,01,01);  % start data
+n2 = datenum(2011,06,30);  % end date
 
 DateVectorNewYear = datevec(n1);
 Year = DateVectorNewYear(1);
@@ -28,15 +28,15 @@ for n = n1:n2
     [BTDref{1:61}] = deal(zeros(298,696) - 500);
     count = n - NewYear + 1;
     DateVector = datevec(n);
-    for t = n - 3:n - 1   % t = n - 15:n - 1
+    for t = n - 7:n - 1   % t = n - 15:n - 1
         DateVectorNewYear1 = datevec(t);
         Year1 = DateVectorNewYear1(1);
         t1 = datenum(Year1,01,01);
         clearvars A1 A2 fields1 fields2
         try
-            A1=load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\',datestr(t,'yyyy'),'\',sprintf('%.3d',t-t1+1),'\T07',sprintf('%.3d',t-t1+1),'.mat'));
+            A1=load(strcat('Y:\MCIDAS\MCIDAS_UAE\',datestr(t,'yyyy'),'\',sprintf('%.3d',t-t1+1),'\T07',sprintf('%.3d',t-t1+1),'.mat'));
             fields1=fieldnames(A1);
-            A2=load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\',datestr(t,'yyyy'),'\',sprintf('%.3d',t-t1+1),'\T09',sprintf('%.3d',t-t1+1),'.mat'));
+            A2=load(strcat('Y:\MCIDAS\MCIDAS_UAE\',datestr(t,'yyyy'),'\',sprintf('%.3d',t-t1+1),'\T09',sprintf('%.3d',t-t1+1),'.mat'));
             fields2=fieldnames(A2);
         catch
             continue
@@ -65,21 +65,21 @@ for n = n1:n2
 
     clearvars B1 B2 B3 fields1 fields2 fields3
     try
-        B1 = load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\',datestr(n,'yyyy'),'\',sprintf('%.3d',count),'\T10',sprintf('%.3d',count),'.mat'));
+        B1 = load(strcat('Y:\MCIDAS\MCIDAS_UAE\',datestr(n,'yyyy'),'\',sprintf('%.3d',count),'\T10',sprintf('%.3d',count),'.mat'));
         fields1=fieldnames(B1);
     catch
         count1 = count1 + 1;
         Missing_file{count1} = strcat('T10_',datestr(n,'yyyy'),'_',sprintf('%.3d',count),'.mat');
     end
     try
-        B2 = load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\',datestr(n,'yyyy'),'\',sprintf('%.3d',count),'\T09',sprintf('%.3d',count),'.mat'));
+        B2 = load(strcat('Y:\MCIDAS\MCIDAS_UAE\',datestr(n,'yyyy'),'\',sprintf('%.3d',count),'\T09',sprintf('%.3d',count),'.mat'));
         fields2=fieldnames(B2);
     catch
         count1 = count1 + 1;
         Missing_file{count1} = strcat('T09_',datestr(n,'yyyy'),'_',sprintf('%.3d',count),'.mat');
     end
     try
-        B3 = load(strcat('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\',datestr(n,'yyyy'),'\',sprintf('%.3d',count),'\T07',sprintf('%.3d',count),'.mat'));
+        B3 = load(strcat('Y:\MCIDAS\MCIDAS_UAE\',datestr(n,'yyyy'),'\',sprintf('%.3d',count),'\T07',sprintf('%.3d',count),'.mat'));
         fields3=fieldnames(B3);
     catch
         count1 = count1 + 1;
@@ -137,26 +137,26 @@ for n = n1:n2
     end
    % Dust_monthly{DateVector(2)} = sum(cat(3,Dust_monthly{DateVector(2)},Dust_daily_sum{count}),3);
     
-       filename = ['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\MCIDAS_prova\RGB_Mask_',datestr(n,'yyyymmdd')];
+       filename = ['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\DUST_Mask_',datestr(n,'yyyymmdd')];
 save (filename,'Dust_daily_each_time_step', '-v7.3')
    
-end
+% end
 
 
-figure
-for jj=1:61
-imagesc(Dust_daily_each_time_step{1,jj})
-title(jj)
-pause(.5)
-end
+% figure
+% for jj=1:61
+% imagesc(Dust_daily_each_time_step{1,jj})
+% title(jj)
+% pause(.5)
+% end
 
 
-for n = n1:n2
- load(['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\MCIDAS_prova\RGB_Mask_',datestr(n,'yyyymmdd'),'.mat']);
+% for n = n1:n2
+ % load(['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\DUST_Mask_',datestr(n,'yyyymmdd'),'.mat']);
 
 % load Latitude & Longitude
-load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\LAT_2009.mat')
-load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\LONG_2009.mat')
+% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\LAT_2009.mat')
+% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\MCIDAS\LONG_2009.mat')
 
 % make a gridded lat and lon
 LAT = repmat((22.1307:0.01965:27.9815),696,1);
@@ -181,7 +181,7 @@ end
 % daw=dawit(:,:, 5:10);
 %%%% creating the nc file
 
-filename_nc =['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\MCIDAS_prova\Seviri_',datestr(n,'yyyymmdd'),'_I_Method.nc'];
+filename_nc =['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\HDF5_outputs\Seviri_',datestr(n,'yyyymmdd'),'_I_Method.nc'];
 ncid=netcdf.create(filename_nc,'NETCDF4');
 
 

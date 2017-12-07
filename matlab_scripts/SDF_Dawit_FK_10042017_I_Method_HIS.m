@@ -1,5 +1,5 @@
-n1 = datenum(2011,08,04);   % start date
-n2 = datenum(2011,12,31);   % end date
+n1 = datenum(2011,12,31);   % start date
+n2 = datenum(2017,12,06);   % end date
 
 % [Dust_monthly{1:12}] = deal(zeros(1500));
 %%%% 4 datasets every 15 minutes = 4 x 24 hours = 96......images by day
@@ -41,7 +41,7 @@ for n = n1:n2
                 continue
             end
             try
-                if t == n - 8 % check if the first day of ref. no need to maximize
+                if t == n - 7 % check if the first day of ref. no need to maximize
                     for ii = 1:24
                         count1 = count1 + 1;
                         BTDref{count1} = A2.(fields2{1})(:,:,ii) - A1.(fields1{1})(:,:,ii);
@@ -161,14 +161,15 @@ for n = n1:n2
     filename = ['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\DUST_Mask_',datestr(n,'yyyymmdd')];
 save (filename,'Dust_daily_each_time_step', '-v7.3')
     
-end
+% end
 
-figure
-for jj=1:96
-imagesc(Dust_daily_each_time_step{1,jj})
-title(jj)
-pause(.5)
-end
+
+%figure
+%for jj=1:96
+%imagesc(Dust_daily_each_time_step{1,jj})
+%title(jj)
+%pause(.5)
+%end
 
 
 
@@ -186,8 +187,8 @@ end
 % load all seviri data for one day
 
 
-for n = n1:n2
- load(['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\DUST_Mask_',datestr(n,'yyyymmdd'),'.mat']);
+% for n = n1:n2
+%  load(['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\DUST_Mask_',datestr(n,'yyyymmdd'),'.mat']);
 
 % load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150329.mat')
 % load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150330.mat')
@@ -224,7 +225,7 @@ end
 % filename_nc = ['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\Seviri_',datestr(n1,'yyyymmdd'),'.nc'];
 % ncid=netcdf.create(filename_nc, 'NOCLOBBER');
 
-filename_nc =['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\Seviri_',datestr(n,'yyyymmdd'),'_I_Method.nc'];
+filename_nc =['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\HDF5_outputs\Seviri_',datestr(n,'yyyymmdd'),'_I_Method.nc'];
 ncid=netcdf.create(filename_nc,'NETCDF4');
 
 % ncid=netcdf.create('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\Seviri_20150329_I_Method.nc','NETCDF4');
@@ -246,7 +247,7 @@ varid2 = netcdf.defVar(ncid, 'lon', 'NC_DOUBLE', dimid(2));
 varid3 = netcdf.defVar(ncid, 'lat', 'NC_DOUBLE', dimid(1));
 %varid4 = netcdf.defVar(ncid, 'time', 'NC_DOUBLE', dimid(3));
 
- netcdf.defVarDeflate(ncid,varid1,true,true,5);
+netcdf.defVarDeflate(ncid,varid1,true,true,5);
 
 netcdf.endDef(ncid);
 netcdf.putVar(ncid,varid1,dawit(:,:,:));

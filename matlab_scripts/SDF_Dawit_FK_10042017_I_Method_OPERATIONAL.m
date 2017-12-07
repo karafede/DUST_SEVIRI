@@ -48,7 +48,7 @@ Dust= zeros(1500,1500);
                 continue
             end
             try
-                if t == n - 8 % check if the first day of ref. no need to maximize
+                if t == n - 5 % check if the first day of ref. no need to maximize
                     for ii = 1:24
                         count1 = count1 + 1;
                         BTDref{count1} = A2.(fields2{1})(:,:,ii) - A1.(fields1{1})(:,:,ii);
