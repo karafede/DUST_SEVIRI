@@ -6,6 +6,9 @@ library(lubridate)
 library(leaflet)
 library(mapview)
 library(RNetCDF)
+library(webshot)
+library(htmlwidgets)
+library(jpeg)
 
 setwd("D:/img_files_prova")
 # directory <- getwd()
@@ -54,8 +57,13 @@ TS <- seq(from=start, by=1, to=end)
 # x = 3315 lines
 # y = 3712 lines
 
-LON <- seq(from= 30.0055, to = 59.9945, by =0.009047)  #3315
-LAT <- seq(from= 10.0065, to = 39.9949, by =0.008079)  #3712
+# coordinates from SEVIRII (matlab files)
+# LON <- seq(from= 30.0055, to = 59.9945, by =0.009047)  #3315
+# LAT <- seq(from= 10.0065, to = 39.9949, by =0.008079)  #3712
+
+LON <- seq(from= 30.1, to = 59.9, by =0.008991)  #3315
+LAT <- seq(from= 10.4, to = 41.6, by =0.008407)  #3712
+
 xmn = min(LON)
 xmx = max(LON)
 ymn = min(LAT)
@@ -94,7 +102,7 @@ tryCatch({
   R01 <- readGDAL(paste0("D:/img_files_prova/R01/",filenames_R01[i]))
   R01 <- as.matrix(R01)
   R01 <-  t(R01[ , ])
-  r1 <- raster(R01, 30.1, 60, ymn,  42, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  r1 <- raster(R01, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
   plot(r1)
   plot(shp_UAE, add=TRUE, lwd=1)
 }, error= function(err) { print(paste0("no band R01"))
@@ -109,7 +117,7 @@ tryCatch({
     R02 <- readGDAL(paste0("D:/img_files_prova/R02/",filenames_R02[i]))
     R02 <- as.matrix(R02)
     R02 <-  t(R02[ , ])
-    r2 <- raster(R02, 30.1, 60, ymn,  42, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+    r2 <- raster(R02, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
     plot(r2)
   }, error= function(err) { print(paste0("no band R02"))
     
@@ -123,7 +131,7 @@ tryCatch({
     R03 <- readGDAL(paste0("D:/img_files_prova/R03/",filenames_R03[i]))
     R03 <- as.matrix(R03)
     R03 <-  t(R03[ , ])
-    r3 <- raster(R01, 30.1, 60, ymn,  42, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+    r3 <- raster(R03, 30.1, 59.9, 10.4, 41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
     plot(r3)
   }, error= function(err) { print(paste0("no band R03"))
     
@@ -132,7 +140,7 @@ tryCatch({
   })
   
   
-}
+# }
 
 
 # create a raster stack with bands representing
@@ -145,12 +153,12 @@ tryCatch({
 rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Gree, Blue)
 # plot(rgbRaster)
 
-
 # plot an RGB version of the stack
-plotRGB(rgbRaster,r=3,g=2,b=1, stretch = "lin")
+raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
 writeRaster(rgbRaster, paste0("D:/img_files_prova/",str_sub(filenames_R01[i], start = 1, end = -19),"_RGB.tif") , options= "INTERLEAVE=BAND", overwrite=T)
 
-}
+# }
+# }
 
 # make leflet map and take a screenshot ####
 
@@ -160,10 +168,10 @@ writeRaster(rgbRaster, paste0("D:/img_files_prova/",str_sub(filenames_R01[i], st
 
 my_leaflet_map <- leaflet() %>% 
   addTiles() %>% 
-  addTiles(group = "OSM (default)") %>%
-  addProviderTiles("OpenStreetMap.Mapnik", group = "Road map") %>%
-  addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
-  addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
+  # addTiles(group = "OSM (default)") %>%
+  # addProviderTiles("OpenStreetMap.Mapnik", group = "Road map") %>%
+  # addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
+  # addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
   
   # addPopups(32, 38, content,
   #           options = popupOptions(closeButton = FALSE)) %>%
@@ -174,17 +182,16 @@ my_leaflet_map <- leaflet() %>%
     # overlayGroups = "SEVIRI",
     options = layersControlOptions(collapsed = TRUE))
 
-mapview::viewRGB(rgbRaster, 3, 2, 1, map = my_leaflet_map)
-
+map <- mapview::viewRGB(rgbRaster, 1, 2, 3, map = my_leaflet_map)
+map
 
 ## This is the png creation part
-# saveWidget(map, 'temp.html', selfcontained = FALSE)
-# webshot('temp.html', file = paste0(str_sub(name_time, start = 1, end = -10), "_",
-#                                    str_sub(name_time, start = 12, end = -7), "_",
-#                                    str_sub(name_time, start = 15, end = -4),
-#                                    ".png"), vwidth = 900, vheight = 900,
-#         cliprect = 'viewport')
+mapshot(map, url = paste0(getwd(), "/map.html"))
+webshot('map.html', file = paste0("D:/img_files_prova/",str_sub(filenames_R01[i], 
+                                 start = 1, end = -19),"_RGB.png"), 
+                                 vwidth = 680, vheight = 803.5,
+                                 cliprect = 'viewport')
 
 
 }
-
+}
