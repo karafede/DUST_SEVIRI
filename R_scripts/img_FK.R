@@ -3,11 +3,16 @@ library(raster)
 library(rgdal)
 library(stringr)
 library(lubridate)
+library(leaflet)
 
 setwd("D:/img_files_prova")
 # directory <- getwd()
-filenames_T04 <- dir("D:/img_files_prova/T04", pattern="\\.img$")
+filenames_R01 <- dir("D:/img_files_prova/R01", pattern="\\.img$")
+filenames_R03 <- dir("D:/img_files_prova/R03", pattern="\\.img$")
+filenames_T07 <- dir("D:/img_files_prova/T07", pattern="\\.img$")
 filenames_T09 <- dir("D:/img_files_prova/T09", pattern="\\.img$")
+filenames_T10 <- dir("D:/img_files_prova/T10", pattern="\\.img$")
+filenames_T04 <- dir("D:/img_files_prova/T04", pattern="\\.img$")
 filenames_T10 <- dir("D:/img_files_prova/T10", pattern="\\.img$")
 # filenames_T04 <- dir(directory, pattern="\\.img$")
 # filenames_hdr <- dir(directory, pattern="\\.hdr$")
@@ -37,16 +42,17 @@ DATE <- date(time)
 
 ##################
 
-DATE <- "2017-12-07"
+DATE <- "2017-12-10"
 DATE <- as.Date(DATE) 
 
 # current_date <- paste0(year,month,day)
-current_date <- "20171207"
-filenames_T04 <- dir("D:/img_files_prova/T04", pattern = current_date)
-filenames_T04 <- filenames_T04[grep(".img", filenames_T04, fixed = T)]
+current_date <- "20171210"
+filenames_T07 <- dir("D:/img_files_prova/T07", pattern = current_date)
+filenames_T07 <- filenames_T07[grep(".img", filenames_T07, fixed = T)]
 
 # DateTime <- str_sub(filenames_T04[1], start = 1, end = -19)
 
+# define START and END date to create a reference (background brightness temperature)
 # start <- DATE-5
 # end <- DATE-1
 
@@ -75,8 +81,6 @@ t <- DATE
 # create reference ####
 #######################
 
-
-
 for (t in TS) {
 
 # inizialize an empty raster stack for each DAY  
@@ -85,16 +89,16 @@ count1 <- 0
 
 i <- 2
 
-for (i in 1:length(filenames_T04)) {
+for (i in 1:length(filenames_T07)) {
   remove(A1, A2)
 tryCatch({
-  A1 <- readGDAL(paste0("D:/img_files_prova/T04/",filenames_T04[i]))
-  A1 <- as.matrix(A1)
+  A1 <- readGDAL(paste0("D:/img_files_prova/T07/",filenames_T07[i]))
+  A1 <- as.matrix(A1)+273  # conversion into degrees Kelvin
  # image(A1)
   A2 <- readGDAL(paste0("D:/img_files_prova/T09/",filenames_T09[i]))
-  A2 <- as.matrix(A2)
+  A2 <- as.matrix(A2)+273
   count1 <- count1 + 1
-}, error= function(err) { print(paste0("no band T04"))
+}, error= function(err) { print(paste0("no band T07 & T09"))
   
 }, finally = {
   
@@ -104,16 +108,16 @@ tryCatch({
   
 tryCatch({ 
   if (t == DATE-5) {
-# for (i in 1:length(filenames_T04)) 
+# for (i in 1:length(filenames_T07)) 
 count1 <- count1 + 1
 BTDref <- A2 - A1 
 }
 
 else {
  remove(BTD108_087) 
-#  for (i in 1:length(filenames_T04)) 
+#  for (i in 1:length(filenames_T07)) 
     BTD108_087 <- A2 - A1
-    BTDref <- pmax(BTDref, BTD108_087)  #pairwise max between matrices
+    BTDref <- pmax(BTDref, BTD108_087)  # pairwise max between matrices
   }
     })
   }
@@ -121,14 +125,14 @@ else {
 count2 <- 0
 count3 <- 0
 
-i <- 2
+i <- 10
 
-for (i in 1:length(filenames_T04)) {
+for (i in 1:length(filenames_T07)) {
   remove(B1, B2, B3)
   
   tryCatch({
     B1 <- readGDAL(paste0("D:/img_files_prova/T10/",filenames_T10[i]))
-    B1 <- as.matrix(B1)
+    B1 <- as.matrix(B1)+273
   }, error= function(err) { print(paste0("no band T10"))
   }, finally = { 
     count3 <- count3 + 1;
@@ -137,7 +141,7 @@ for (i in 1:length(filenames_T04)) {
   
   tryCatch({
     B2 <- readGDAL(paste0("D:/img_files_prova/T09/",filenames_T09[i]))
-    B2 <- as.matrix(B2)
+    B2 <- as.matrix(B2)+273
     
   }, error= function(err) { print(paste0("no band T09"))
   }, finally = { 
@@ -146,17 +150,47 @@ for (i in 1:length(filenames_T04)) {
   })
   
   tryCatch({
-    B3 <- readGDAL(paste0("D:/img_files_prova/T04/",filenames_T04[i]))
-    B3 <- as.matrix(B3)
+    B3 <- readGDAL(paste0("D:/img_files_prova/T07/",filenames_T07[i]))
+    B3 <- as.matrix(B3)+273
   }, error= function(err) { print(paste0("no band T07"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_T07[i]
+  })
+  
+  
+  tryCatch({
+    A4 <- readGDAL(paste0("D:/img_files_prova/T04/",filenames_T04[i]))
+    A4 <- as.matrix(A4)+273
+  }, error= function(err) { print(paste0("no band T04"))
   }, finally = { 
     count3 <- count3 + 1;
     Missing_file = filenames_T04[i]
   })
   
+  
+  tryCatch({
+    A5 <- readGDAL(paste0("D:/img_files_prova/R01/",filenames_R01[i]))
+    A5 <- as.matrix(A5)+273
+  }, error= function(err) { print(paste0("no band R01"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_R01[i]
+  })
+  
+  
+  tryCatch({
+    A6 <- readGDAL(paste0("D:/img_files_prova/R03/",filenames_R03[i]))
+    A6 <- as.matrix(A6)+273
+  }, error= function(err) { print(paste0("no band R03"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_R03[i]
+  })
+  
 
   
-# for (i in 1:length(filenames_T04)) {
+# for (i in 1:length(filenames_T07)) {
   remove(BT108, BT120_BT108, BT108_BT087, BTD108_087anom)
   count2 <- count2 + 1
   BT108 <- B2
@@ -166,20 +200,49 @@ for (i in 1:length(filenames_T04)) {
   # create a stacked raster
   Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
+  
+  # original Meteofrance Algorithm
+  # A1 = T10 = B1
+  # A2 = T09 = B2
+  # A3 = T07 = B3
+  # A4 = T04
+  # A5 = R01
+  # A6 = R03
+  TB039_TB108 = A4 - A2
+  TB120_TB108 = B1 - B2
+  R006_R016 = A5 / A6
+  R01_P3 = A5
+  TB087_TB108 = B3 - A2
+  Dust_daily_each_time_step <- ((((TB039_TB108 > -10) & (TB120_TB108 > 2.5)) | ((TB039_TB108 > 12) & (TB120_TB108 > 0.6))) | (((TB120_TB108 > -1) & (TB087_TB108 > -1) &  (R006_R016 < 0.8)) | ((TB120_TB108 > -1) & (TB087_TB108 > min(-1,2.5-0.18*R01_P3)) & (R006_R016 < 0.7))))
+  
+  
   # convert logical vector (TRUE & FALSE) into 0 & 1
   Dust_daily_each_time_step <- Dust_daily_each_time_step*1
-  Dust_daily_each_time_step <- BT120_BT108  ### !!! jusr as a trial
+  Dust_daily_each_time_step[Dust_daily_each_time_step == 0] <- NA
+  max(Dust_daily_each_time_step)
+  
+  # AAA <- BT108 >= 285
+  # AAA <- BT120_BT108 >= 0
+  # AAA <- (BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10)
+  # AAA <- BTD108_087anom <= -2
+  # Dust_daily_each_time_step <- AAA
   Dust_daily_each_time_step <-  t(Dust_daily_each_time_step[ , ])    # IF map is upside down 
   ####  A1 <- A1[nrow(A1):1, ]
   r <- raster(Dust_daily_each_time_step, xmn, xmx, ymn,  ymx, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
   plot(r)
 #  writeRaster(r, "D:/img_files_prova/T04_prova.tif" , options= "INTERLEAVE=BAND", overwrite=T)
-  writeRaster(r, paste0("D:/img_files_prova/",str_sub(filenames_T04[i], start = 1, end = -19),".tif") , options= "INTERLEAVE=BAND", overwrite=T)
+  writeRaster(r, paste0("D:/img_files_prova/",str_sub(filenames_T07[i], start = 1, end = -19),".tif") , options= "INTERLEAVE=BAND", overwrite=T)
   
   # all_rasters <- stack(all_rasters,r)
 #  }
 }
 }
+
+
+map <- leaflet() %>% 
+  addTiles() %>%
+  addRasterImage(r)
+map
 
 
 # AAA <- matrix(data = seq(1:20), nrow = 5, ncol = 7)
