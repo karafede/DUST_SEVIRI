@@ -67,11 +67,11 @@ filenames_R03 <- filenames_R03[grep(".img", filenames_R03, fixed = T)]
 #########################################################################################
 # define START and END date to create a reference (background brightness temperature) ###
 
-# start <- DATE-1  # DATE-5
-# end <- DATE   # DATE-1
+start <- DATE-1  # DATE-5
+end <- DATE   # DATE-1
 
-start <- DATE
-end <- DATE
+# start <- DATE
+# end <- DATE
 TS <- seq(from=start, by=1, to=end)
 
 # x = 3315 lines
@@ -240,7 +240,7 @@ for (i in 1:length(filenames_T07)) {
   r <- raster(Dust_daily_each_time_step, xmn, xmx, ymn,  ymx, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
   plot(r)
 #  writeRaster(r, "D:/img_files_prova/T04_prova.tif" , options= "INTERLEAVE=BAND", overwrite=T)
-  writeRaster(r, paste0("D:/img_files_prova/",str_sub(filenames_T07[i], start = 1, end = -19),".tif") , options= "INTERLEAVE=BAND", overwrite=T)
+  writeRaster(r, paste0("D:/img_files_prova/I_Method/",str_sub(filenames_T07[i], start = 1, end = -19),".tif") , options= "INTERLEAVE=BAND", overwrite=T)
   
   # all_rasters <- stack(all_rasters,r)
 #  }
@@ -261,9 +261,9 @@ map
 
         
 saveWidget(map, 'temp.html', selfcontained = FALSE)
-webshot('temp.html', file = paste0("D:/img_files_prova/",str_sub(filenames_T07[i], 
+webshot('temp.html', file = paste0("D:/img_files_prova/I_Method/",str_sub(filenames_T07[i], 
                 start = 1, end = -19),"_DUST_I_method.png"), 
-                vwidth = 680, vheight = 803.5,
+                vwidth = 750, vheight = 790,
                 cliprect = 'viewport')
 
 }

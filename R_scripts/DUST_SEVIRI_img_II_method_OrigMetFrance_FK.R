@@ -8,21 +8,6 @@ library(webshot)
 library(htmlwidgets)
 
 setwd("D:/img_files_prova")
-# directory <- getwd()
-# filenames_R01 <- dir("D:/img_files_prova/R01", pattern="\\.img$")
-# filenames_R03 <- dir("D:/img_files_prova/R03", pattern="\\.img$")
-# filenames_T07 <- dir("D:/img_files_prova/T07", pattern="\\.img$")
-# filenames_T09 <- dir("D:/img_files_prova/T09", pattern="\\.img$")
-# filenames_T10 <- dir("D:/img_files_prova/T10", pattern="\\.img$")
-# filenames_T04 <- dir("D:/img_files_prova/T04", pattern="\\.img$")
-# filenames_T10 <- dir("D:/img_files_prova/T10", pattern="\\.img$")
-# filenames_T04 <- dir(directory, pattern="\\.img$")
-# filenames_hdr <- dir(directory, pattern="\\.hdr$")
-
-# filenames_hdr <- dir("D:/img_files_prova/T04", pattern="\\.hdr$")
-# setwd("D:/img_files_prova/T04")
-# 
-# hdr(filenames_hdr, format="ENVI") 
 
 time <- Sys.time()
 year <- str_sub(time, start = 0, end = -16)
@@ -65,14 +50,7 @@ filenames_R03 <- filenames_R03[grep(".img", filenames_R03, fixed = T)]
 # DateTime <- str_sub(filenames_T04[1], start = 1, end = -19)
 
 #########################################################################################
-# define START and END date to create a reference (background brightness temperature) ###
 
-# start <- DATE-1  # DATE-5
-# end <- DATE   # DATE-1
-
-start <- DATE
-end <- DATE
-TS <- seq(from=start, by=1, to=end)
 
 # x = 3315 lines
 # y = 3712 lines
@@ -85,23 +63,14 @@ ymn = min(LAT)
 ymx = max(LAT)
 
 # make an empty matrix
-BTDref <- matrix(0, nrow = 3315, ncol = 3712)
 Missing_file <- data.frame(matrix(0, ncol = 1, nrow = 30))
 
-
-# t <- DATE
-
-#######################
-# create reference ####
-#######################
-
-for (t in TS) {
 
 # inizialize an empty raster stack for each DAY  
 # all_rasters <- stack() 
 count1 <- 0
 
-i <- 2
+i <- 10
 
 for (i in 1:length(filenames_T07)) {
   remove(A1, A2)
@@ -118,30 +87,12 @@ tryCatch({
   
 })
   
-  
-  
-tryCatch({ 
-  if (t == DATE-5) {
-# for (i in 1:length(filenames_T07)) 
-count1 <- count1 + 1
-BTDref <- A2 - A1 
-}
-
-else {
- remove(BTD108_087) 
-#  for (i in 1:length(filenames_T07)) 
-    BTD108_087 <- A2 - A1
-    BTDref <- pmax(BTDref, BTD108_087)  # pairwise max between matrices
-  }
-    })
-  }
+#  }
 
 count2 <- 0
 count3 <- 0
 
-i <- 10
 
-for (i in 1:length(filenames_T07)) {
   remove(B1, B2, B3)
   
   tryCatch({
@@ -203,25 +154,13 @@ for (i in 1:length(filenames_T07)) {
   })
   
 
-  
-# for (i in 1:length(filenames_T07)) {
-  remove(BT108, BT120_BT108, BT108_BT087, BTD108_087anom)
-  count2 <- count2 + 1
-  BT108 <- B2
-  BT120_BT108 <- B1 - B2
-  BT108_BT087 <- B2 - B3
-  BTD108_087anom <- BT108_BT087 - BTDref
-  # create a stacked raster
-  Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-  
-  
-  # # original Meteofrance Algorithm
-  # TB039_TB108 = A4 - A2
-  # TB120_TB108 = B1 - B2
-  # R006_R016 = A5 / A6
-  # R01_P3 = A5
-  # TB087_TB108 = B3 - A2
-  # Dust_daily_each_time_step <- ((((TB039_TB108 > -10) & (TB120_TB108 > 2.5)) | ((TB039_TB108 > 12) & (TB120_TB108 > 0.6))) | (((TB120_TB108 > -1) & (TB087_TB108 > -1) &  (R006_R016 < 0.8)) | ((TB120_TB108 > -1) & (TB087_TB108 > min(-1,2.5-0.18*R01_P3)) & (R006_R016 < 0.7))))
+  # original Meteofrance Algorithm
+  TB039_TB108 = A4 - A2
+  TB120_TB108 = B1 - B2
+  R006_R016 = A5 / A6
+  R01_P3 = A5
+  TB087_TB108 = B3 - A2
+  Dust_daily_each_time_step <- ((((TB039_TB108 > -10) & (TB120_TB108 > 2.5)) | ((TB039_TB108 > 12) & (TB120_TB108 > 0.6))) | (((TB120_TB108 > -1) & (TB087_TB108 > -1) &  (R006_R016 < 0.8)) | ((TB120_TB108 > -1) & (TB087_TB108 > min(-1,2.5-0.18*R01_P3)) & (R006_R016 < 0.7))))
   
   
   # convert logical vector (TRUE & FALSE) into 0 & 1
@@ -230,23 +169,14 @@ for (i in 1:length(filenames_T07)) {
   Dust_daily_each_time_step[Dust_daily_each_time_step == 0] <- NA
   max(Dust_daily_each_time_step)
   
-  # AAA <- BT108 >= 285
-  # AAA <- BT120_BT108 >= 0
-  # AAA <- (BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10)
-  # AAA <- BTD108_087anom <= -2
-  # Dust_daily_each_time_step <- AAA
   Dust_daily_each_time_step <-  t(Dust_daily_each_time_step[ , ])    # IF map is upside down 
   ####  A1 <- A1[nrow(A1):1, ]
   r <- raster(Dust_daily_each_time_step, xmn, xmx, ymn,  ymx, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
   plot(r)
 #  writeRaster(r, "D:/img_files_prova/T04_prova.tif" , options= "INTERLEAVE=BAND", overwrite=T)
-  writeRaster(r, paste0("D:/img_files_prova/",str_sub(filenames_T07[i], start = 1, end = -19),".tif") , options= "INTERLEAVE=BAND", overwrite=T)
+  writeRaster(r, paste0("D:/img_files_prova/II_Method/",str_sub(filenames_T07[i], start = 1, end = -19),".tif") , options= "INTERLEAVE=BAND", overwrite=T)
   
   # all_rasters <- stack(all_rasters,r)
-#  }
-
-# }
-# }
 
 
 pal <- colorNumeric(c("#ff0000"), values(r),
@@ -258,22 +188,12 @@ map <- leaflet() %>%
   addRasterImage(r, colors = pal)
 map
 
-
-        
 saveWidget(map, 'temp.html', selfcontained = FALSE)
-webshot('temp.html', file = paste0("D:/img_files_prova/",str_sub(filenames_T07[i], 
-                start = 1, end = -19),"_DUST_I_method.png"), 
-                vwidth = 680, vheight = 803.5,
+webshot('temp.html', file = paste0("D:/img_files_prova/II_Method/",str_sub(filenames_T07[i], 
+                start = 1, end = -19),"_DUST_II_method_OrigMetFrance_FK.png"), 
+                vwidth = 750, vheight = 790,
                 cliprect = 'viewport')
 
 }
-}
-
-        
-
-# AAA <- matrix(data = seq(1:20), nrow = 5, ncol = 7)
-# AAA <- as.matrix(AAA)
-# BBB <- AAA >= 6
-# BBB <- BBB*1
 
 
