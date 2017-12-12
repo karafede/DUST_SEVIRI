@@ -6,23 +6,9 @@ library(lubridate)
 library(leaflet)
 library(webshot)
 library(htmlwidgets)
+library(mapview)
 
 setwd("D:/img_files_prova")
-# directory <- getwd()
-# filenames_R01 <- dir("D:/img_files_prova/R01", pattern="\\.img$")
-# filenames_R03 <- dir("D:/img_files_prova/R03", pattern="\\.img$")
-# filenames_T07 <- dir("D:/img_files_prova/T07", pattern="\\.img$")
-# filenames_T09 <- dir("D:/img_files_prova/T09", pattern="\\.img$")
-# filenames_T10 <- dir("D:/img_files_prova/T10", pattern="\\.img$")
-# filenames_T04 <- dir("D:/img_files_prova/T04", pattern="\\.img$")
-# filenames_T10 <- dir("D:/img_files_prova/T10", pattern="\\.img$")
-# filenames_T04 <- dir(directory, pattern="\\.img$")
-# filenames_hdr <- dir(directory, pattern="\\.hdr$")
-
-# filenames_hdr <- dir("D:/img_files_prova/T04", pattern="\\.hdr$")
-# setwd("D:/img_files_prova/T04")
-# 
-# hdr(filenames_hdr, format="ENVI") 
 
 time <- Sys.time()
 year <- str_sub(time, start = 0, end = -16)
@@ -59,6 +45,8 @@ filenames_T04 <- dir("D:/img_files_prova/T04", pattern = current_date)
 filenames_T04 <- filenames_T04[grep(".img", filenames_T04, fixed = T)]
 filenames_R01 <- dir("D:/img_files_prova/R01", pattern = current_date)
 filenames_R01 <- filenames_R01[grep(".img", filenames_R01, fixed = T)]
+filenames_R02 <- dir("D:/img_files_prova/R02", pattern = current_date)
+filenames_R02 <- filenames_R02[grep(".img", filenames_R02, fixed = T)]
 filenames_R03 <- dir("D:/img_files_prova/R03", pattern = current_date)
 filenames_R03 <- filenames_R03[grep(".img", filenames_R03, fixed = T)]
 
@@ -101,7 +89,7 @@ for (t in TS) {
 # all_rasters <- stack() 
 count1 <- 0
 
-i <- 2
+i <- 10
 
 for (i in 1:length(filenames_T07)) {
   remove(A1, A2)
@@ -184,8 +172,8 @@ for (i in 1:length(filenames_T07)) {
   
   
   tryCatch({
-    A5 <- readGDAL(paste0("D:/img_files_prova/R01/",filenames_R01[i]))
-    A5 <- as.matrix(A5)+273
+    R01 <- readGDAL(paste0("D:/img_files_prova/R01/",filenames_R01[i]))
+    R01 <- as.matrix(R01)+273
   }, error= function(err) { print(paste0("no band R01"))
   }, finally = { 
     count3 <- count3 + 1;
@@ -194,17 +182,25 @@ for (i in 1:length(filenames_T07)) {
   
   
   tryCatch({
-    A6 <- readGDAL(paste0("D:/img_files_prova/R03/",filenames_R03[i]))
-    A6 <- as.matrix(A6)+273
+    R02 <- readGDAL(paste0("D:/img_files_prova/R02/",filenames_R02[i]))
+    R02 <- as.matrix(R02)+273
+  }, error= function(err) { print(paste0("no band R02"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_R01[i]
+  })
+  
+  
+  tryCatch({
+    R03 <- readGDAL(paste0("D:/img_files_prova/R03/",filenames_R03[i]))
+    R03 <- as.matrix(R03)+273
   }, error= function(err) { print(paste0("no band R03"))
   }, finally = { 
     count3 <- count3 + 1;
     Missing_file = filenames_R03[i]
   })
   
-
   
-# for (i in 1:length(filenames_T07)) {
   remove(BT108, BT120_BT108, BT108_BT087, BTD108_087anom)
   count2 <- count2 + 1
   BT108 <- B2
@@ -215,61 +211,105 @@ for (i in 1:length(filenames_T07)) {
   Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
   
-  # # original Meteofrance Algorithm
-  # TB039_TB108 = A4 - A2
-  # TB120_TB108 = B1 - B2
-  # R006_R016 = A5 / A6
-  # R01_P3 = A5
-  # TB087_TB108 = B3 - A2
-  # Dust_daily_each_time_step <- ((((TB039_TB108 > -10) & (TB120_TB108 > 2.5)) | ((TB039_TB108 > 12) & (TB120_TB108 > 0.6))) | (((TB120_TB108 > -1) & (TB087_TB108 > -1) &  (R006_R016 < 0.8)) | ((TB120_TB108 > -1) & (TB087_TB108 > min(-1,2.5-0.18*R01_P3)) & (R006_R016 < 0.7))))
+  MASK <- Dust_daily_each_time_step*1
+  max(MASK)
+  MASK[MASK == 0] <- 0.000000000001
+  
+  ### best colors for the MASK ###########
+  ########################################
+  MASK_RED <- MASK*345
+  MASK_GREEN <- MASK*300
+  MASK_BLUE <- MASK*276
+  ########################################
+  ########################################
+  
+  # MASK_RED <- MASK*345
+  # MASK_GREEN <- MASK*328
+  # MASK_BLUE <- MASK*276
+  # 
+  # MASK_RED <- MASK*200
+  # MASK_GREEN <- MASK*345
+  # MASK_BLUE <- MASK*328
+
+  # MASK_RED <- MASK*160
+  # MASK_GREEN <- MASK*310
+  # MASK_BLUE <- MASK*230
+
+  # MASK_RED <- MASK*160
+  # MASK_GREEN <- MASK*310
+  # MASK_BLUE <- MASK*220
   
   
   # convert logical vector (TRUE & FALSE) into 0 & 1
-  Dust_daily_each_time_step <- Dust_daily_each_time_step*1
+  Dust_daily_each_time_step <- Dust_daily_each_time_step*2
   max(Dust_daily_each_time_step)
-  Dust_daily_each_time_step[Dust_daily_each_time_step == 0] <- NA
+  Dust_daily_each_time_step[Dust_daily_each_time_step == 0] <- 1
   max(Dust_daily_each_time_step)
+  min(Dust_daily_each_time_step)
+  Dust_daily_each_time_step[Dust_daily_each_time_step == 2] <- 0  #dust flag
   
-  # AAA <- BT108 >= 285
-  # AAA <- BT120_BT108 >= 0
-  # AAA <- (BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10)
-  # AAA <- BTD108_087anom <= -2
-  # Dust_daily_each_time_step <- AAA
-  Dust_daily_each_time_step <-  t(Dust_daily_each_time_step[ , ])    # IF map is upside down 
-  ####  A1 <- A1[nrow(A1):1, ]
-  r <- raster(Dust_daily_each_time_step, xmn, xmx, ymn,  ymx, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-  plot(r)
-#  writeRaster(r, "D:/img_files_prova/T04_prova.tif" , options= "INTERLEAVE=BAND", overwrite=T)
-  writeRaster(r, paste0("D:/img_files_prova/I_Method/",str_sub(filenames_T07[i], start = 1, end = -19),".tif") , options= "INTERLEAVE=BAND", overwrite=T)
+  r1 <- R01*Dust_daily_each_time_step + MASK_RED
+  r2 <- R02*Dust_daily_each_time_step + MASK_GREEN
+  r3 <- R03*Dust_daily_each_time_step + MASK_BLUE
+  
+  
+  MASK_RED <-  t(MASK_RED)
+  MASK_RED <- raster(MASK_RED, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  plot(MASK_RED)
+  
+  MASK_GREEN <-  t(MASK_GREEN)
+  MASK_GREEN <- raster(MASK_GREEN, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  plot(MASK_GREEN)
+  
+  r1 <-  t(r1[ , ])
+  r1 <- raster(r1, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  plot(r1)
+  
+  r2 <-  t(r2[ , ])
+  r2 <- raster(r2, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  plot(r2)
+  
+  r3 <-  t(r3[ , ])
+  r3 <- raster(r3, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  plot(r3)
+  
+  DUST_mask <-  t(Dust_daily_each_time_step[ , ])
+  DUST_mask <- raster(DUST_mask, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  plot(DUST_mask)
+  
+  # create and RGB image ########
+  rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Gree, Blue)
+  # plot an RGB version of the stack
+  raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
+  
+  # make and SAVE a geotiff raster
+  writeRaster(rgbRaster, paste0("D:/img_files_prova/I_Method/",
+                                str_sub(filenames_R01[i], start = 1, end = -19),
+                                "_RGB.tif") , options= "INTERLEAVE=BAND", overwrite=T)
+  
+  
+  my_leaflet_map <- leaflet() %>% 
+    addTiles() %>% 
+    addLayersControl(
+      baseGroups = c("Road map", "Toner Lite"),
+      # overlayGroups = "SEVIRI",
+      options = layersControlOptions(collapsed = TRUE))
+  
+  map <- mapview::viewRGB(rgbRaster, 1, 2, 3, map = my_leaflet_map)
+  map
+  
+  
+  mapshot(map, url = paste0(getwd(), "/map.html"))
+  webshot('map.html', file = paste0("D:/img_files_prova/I_Method/"
+                                    ,str_sub(filenames_R01[i], 
+                                             start = 1, end = -19),"_RGB.png"), 
+          vwidth = 680, vheight = 803.5,
+          cliprect = 'viewport')
   
   # all_rasters <- stack(all_rasters,r)
-#  }
-
-# }
-# }
-
-
-pal <- colorNumeric(c("#ff0000"), values(r),
-                    na.color = "transparent")
-
-map <- leaflet() %>% 
-  addTiles() %>%
-  addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
-  addRasterImage(r, colors = pal)
-map
-
-
-        
-saveWidget(map, 'temp.html', selfcontained = FALSE)
-webshot('temp.html', file = paste0("D:/img_files_prova/I_Method/",str_sub(filenames_T07[i], 
-                start = 1, end = -19),"_DUST_I_method.png"), 
-                vwidth = 750, vheight = 790,
-                cliprect = 'viewport')
-
+  
 }
 }
-
-        
 
 # AAA <- matrix(data = seq(1:20), nrow = 5, ncol = 7)
 # AAA <- as.matrix(AAA)
