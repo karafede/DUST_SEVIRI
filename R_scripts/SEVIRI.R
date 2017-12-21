@@ -5,31 +5,26 @@ library(ncdf4)
 library(raster)
 library(stringr)
 
-memory.limit(size = 9000)   # 9Gb
+# memory.limit(size = 9000)   # 9Gb
 
 # list .nc files
 #  setwd("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/seviri_data_20150402/output_20150402_new")
-setwd("D:/Dust_Event_UAE_2015/SEVIRI_20150402_outputs/I_method")
+# setwd("D:/Dust_Event_UAE_2015/SEVIRI_20150402_outputs/I_method")
+setwd("F:/Historical_DUST/SEVIRI_DUST_MASK_outputs/HDF5_outputs")
 
 patt <- ".nc"
 filenames <- list.files(pattern = patt)
-# change filename 
-# filenames <- filenames[1] # 2015-03-29
-# filenames <- filenames[2] # 2015-03-30
-# filenames <- filenames[3] # 2015-03-31
-# filenames <- filenames[4] # 2015-04-01
-# filenames <- filenames[5] # 2015-04-02
-# filenames <- filenames[6] # 2015-04-03
-filenames <- filenames[7] # 2015-04-04
+filenames <- filenames[1] 
+
+# get the date from the filename
+year <- str_sub(filenames, start = 8, end = -17)
+month <- str_sub(filenames, start = 12, end = -15)
+day <- str_sub(filenames, start = 14, end = -13)
+
+# open nc file and look how many scenes are in
+
 
 # gerate a time sequence for a given day every 15 minuntes
-
-# start <- as.POSIXct("2015-03-29")
-# start <- as.POSIXct("2015-03-30")
-# start <- as.POSIXct("2015-03-31")
-# start <- as.POSIXct("2015-04-01")
-# start <- as.POSIXct("2015-04-02")
-# start <- as.POSIXct("2015-04-03")
 start <- as.POSIXct("2015-04-04")
 
 interval <- 15 #minutes
