@@ -1,5 +1,5 @@
-n1 = datenum(2011,12,31);   % start date
-n2 = datenum(2017,12,06);   % end date
+n1 = datenum(2015,09,14);   % start date
+n2 = datenum(2017,12,18);   % end date
 
 % [Dust_monthly{1:12}] = deal(zeros(1500));
 %%%% 4 datasets every 15 minutes = 4 x 24 hours = 96......images by day
@@ -158,6 +158,7 @@ for n = n1:n2
     %Dust_monthly{DateVector(2)} = sum(cat(3,Dust_monthly{DateVector(2)},Dust_daily_sum{day_num}),3);
     
     % output folder
+
     filename = ['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\DUST_Mask_',datestr(n,'yyyymmdd')];
 save (filename,'Dust_daily_each_time_step', '-v7.3')
     
@@ -172,31 +173,8 @@ save (filename,'Dust_daily_each_time_step', '-v7.3')
 %end
 
 
-
-% filename = ['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_',datestr(n1,'yyyymmdd')];
-% save (filename,'Dust_daily_each_time_step', '-v7.3')
-
-% save ('Dust_daily_sum','Dust_daily_sum','-v7.3')
-% save ('Dust_monthly','Dust_monthly','-v7.3')
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Create Netcdf files ##############################################
-
-
-% load all seviri data for one day
-
-
-% for n = n1:n2
-%  load(['F:\Historical_DUST\SEVIRI_DUST_MASK_outputs\DUST_Mask_',datestr(n,'yyyymmdd'),'.mat']);
-
-% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150329.mat')
-% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150330.mat')
-% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150331.mat')  
-% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150401.mat')  
-% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150402.mat')  
-% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150403.mat')  
-% load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150404.mat')  
 
 
 % load Latitude & Longitude

@@ -1,8 +1,10 @@
 % clc
 % clear
-
-n1 = datenum(2005,01,01);  % start data
-n2 = datenum(2011,06,30);  % end date
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% it only process one year at the time but it is very fast %%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+n1 = datenum(2005,01,01);
+n2 = datenum(2011,06,30);
 
 DateVectorNewYear = datevec(n1);
 Year = DateVectorNewYear(1);
@@ -21,12 +23,14 @@ Zeros_layer = cell(5,1);
 
 count = 0;
 count1 = 0;
-count2 = 0;
 count3 = 0;
 
+
 for n = n1:n2
-    [BTDref{1:61}] = deal(zeros(298,696) - 500);
+  %  clearvars Dust_daily_each_time_step
+ % [BTDref{1:61}] = deal(zeros(298,696) - 500);
     count = n - NewYear + 1;
+   % count = count +1;
     DateVector = datevec(n);
     for t = n - 7:n - 1   % t = n - 15:n - 1
         DateVectorNewYear1 = datevec(t);
@@ -63,7 +67,8 @@ for n = n1:n2
     
     end
 
-    clearvars B1 B2 B3 fields1 fields2 fields3
+     count2 = 0;
+    clearvars B1 B2 B3 fields1 fields2 fields3 
     try
         B1 = load(strcat('Y:\MCIDAS\MCIDAS_UAE\',datestr(n,'yyyy'),'\',sprintf('%.3d',count),'\T10',sprintf('%.3d',count),'.mat'));
         fields1=fieldnames(B1);
@@ -92,8 +97,10 @@ for n = n1:n2
     end
     
     try
+        
+      
         for jj = 1:61
-            clearvars B11 B22 B33 BT108 BT120_BT108 BT108_BT087 BTD108_087anom
+            clearvars B11 B22 B33 BT108 BT120_BT108 BT108_BT087 BTD108_087anom 
             count2 = count2 + 1;
             B11 = B1.(fields1{1})(:,:,jj);
             B11(isnan(B11)) = 0;
