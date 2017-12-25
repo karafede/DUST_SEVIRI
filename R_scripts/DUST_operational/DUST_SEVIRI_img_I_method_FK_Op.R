@@ -60,7 +60,7 @@ filenames_R03 <- filenames_R03[grep(".img", filenames_R03, fixed = T)]
 # define START and END date to create a reference (background brightness temperature) ###
 
 DATE <- as.numeric(DATE)
-start <- DATE-5  # DATE-15
+start <- DATE-7  # DATE-15
 end <- DATE-1   # DATE-1 (always)
 
 
@@ -103,7 +103,7 @@ filenames_T07_ref <- filenames_T07_ref[grep(".img", filenames_T07_ref, fixed = T
 filenames_T09_ref <- dir("/research/SEVIRI_data_Raw_data/T09", pattern = t)
 filenames_T09_ref <- filenames_T09_ref[grep(".img", filenames_T09_ref, fixed = T)]
 
-# i <- 10
+# j <- 10
 
 for (j in 1:length(filenames_T07_ref)) {
   remove(A1, A2)
@@ -122,7 +122,7 @@ tryCatch({
   
   
 tryCatch({ 
-  if (t == DATE-2) {
+  if (t == DATE-7) {
 count1 <- count1 + 1
 BTDref <- A2 - A1 
 }
@@ -130,13 +130,12 @@ BTDref <- A2 - A1
 else {
  remove(BTD108_087) 
     BTD108_087 <- A2 - A1
+    BTDref <- cbind(BTDref, BTD108_087)
     BTDref <- pmax(BTDref, BTD108_087)  # pairwise max between matrices
   }
     })
 }
 
-
-}
 
 #######################################  
 #### end of building reference ########
@@ -308,6 +307,7 @@ for (i in 1:length(filenames_T07)) {
   #         vwidth = 680, vheight = 803.5,
   #         cliprect = 'viewport')
   
+}
 }
   
 # remove files containing NA
