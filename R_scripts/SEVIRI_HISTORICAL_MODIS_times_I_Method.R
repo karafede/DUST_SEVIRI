@@ -5,9 +5,13 @@ library(ncdf4)
 library(raster)
 library(stringr)
 
+# process 2041 files by time !!!!!!
+
 ###########################################################################
 ### stack all the rasters at 07:15 am, as for MODIS TERRA #################
 ###########################################################################
+
+# memory.limit(65461)
 
 dir <- "Z:/_SHARED_FOLDERS/Air Quality/Phase 2/HISTORICAL_dust/UAE_boundary"
 ### shapefile for UAE
@@ -28,6 +32,9 @@ patt <- ".nc"
 filenames <- list.files(pattern = patt)
 # filenames <- filenames[1] # 61 scenes
 # filenames <- filenames[3748] # 96 scenes  20150331
+n <- length(filenames)
+filenames <- filenames[2041:n]
+
 
 #### list .tif files in the output directory
 # patt_tif <- ".tif"
@@ -39,6 +46,9 @@ filenames <- list.files(pattern = patt)
 # filenames_net <- filenames[net_filenames:n_nc_files]
 
 # inizialise an empty raster to stack ALL HOURS together in an unique raster 
+
+
+
 
 import_nc_seviri <- function(filenames){
 
@@ -154,7 +164,8 @@ import_nc_seviri <- function(filenames){
  filenames <- list.files(pattern = patt)
  # filenames <- filenames[1] # 61 scenes
  # filenames <- filenames[3790] # 96 scenes
- 
+ n <- length(filenames)
+ filenames <- filenames[2041:n]
  
  # inizialise an empty raster to stack ALL HOURS together in an unique raster 
  

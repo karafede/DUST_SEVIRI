@@ -28,7 +28,8 @@ patt <- ".nc"
 filenames <- list.files(pattern = patt)
 # filenames <- filenames[1] # 61 scenes
 # filenames <- filenames[3748] # 96 scenes  20150331
-
+n <- length(filenames)
+filenames <- filenames[2041:n]
 
 # inizialise an empty raster to stack ALL HOURS together in an unique raster 
 
@@ -146,7 +147,8 @@ filenames <- list.files(pattern = patt)
  filenames <- list.files(pattern = patt)
  # filenames <- filenames[1] # 61 scenes
  # filenames <- filenames[3790] # 96 scenes
- 
+ n <- length(filenames)
+ filenames <- filenames[2041:n]
  
  # inizialise an empty raster to stack ALL HOURS together in an unique raster 
  
