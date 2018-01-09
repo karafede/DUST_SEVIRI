@@ -8,19 +8,11 @@ library(webshot)
 library(htmlwidgets)
 library(mapview)
 
-setwd("/home/mariners/RGB_masks_MetFr_tif/")
+
+setwd("/home/mariners/RGB_masks_tif/")
 # delete previous .tif. files
 patt <- ".tif"
 filenames <- list.files(pattern = patt)
-
-# filenames
-# filenames <- filenames[28]
-# r <- raster(filenames)
-# vector <- as.vector(r)
-# min_val<- (min(vector,  na.rm = T))
-# min_val
-
-
 file.remove(filenames) 
 
 
@@ -36,6 +28,8 @@ DATE <- date(time)
 DATE <- paste0(year,month,day)
 # DATE <- "20171205"
 # DATE <- as.numeric(DATE)
+
+
 
 ##################
 
@@ -88,42 +82,68 @@ Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Z
 Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
 
 # daytime
-year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
-month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
-day <- str_sub(Solar_Zenith_DAYTIME, start = 9, end = -10)
-hour <- str_sub(Solar_Zenith_DAYTIME, start = 12, end = -7)
-minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
-Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
-Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
+# year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
+# month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
+# day <- str_sub(Solar_Zenith_DAYTIME, start = 9, end = -10)
+# hour <- str_sub(Solar_Zenith_DAYTIME, start = 12, end = -7)
+# minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
+# Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
+# Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
 
 ### nighttime
-# year <- str_sub(Solar_Zenith_NIGHTTIME, start = 0, end = -16)
-# month <- str_sub(Solar_Zenith_NIGHTTIME, start = 6, end = -13)
-# day <- str_sub(Solar_Zenith_NIGHTTIME, start = 9, end = -10)
-# hour <- str_sub(Solar_Zenith_NIGHTTIME, start = 12, end = -7)
-# minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
-# Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
-# Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
+year <- str_sub(Solar_Zenith_NIGHTTIME, start = 0, end = -16)
+month <- str_sub(Solar_Zenith_NIGHTTIME, start = 6, end = -13)
+day <- str_sub(Solar_Zenith_NIGHTTIME, start = 9, end = -10)
+hour <- str_sub(Solar_Zenith_NIGHTTIME, start = 12, end = -7)
+minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
+Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
+Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
 
 
 # find matches between seviri bands @ nighttime 
-filenames_T07 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_T07 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_T07, value=TRUE))
-filenames_T09 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_T09 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_T09, value=TRUE))
-filenames_T10 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_T10 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_T10, value=TRUE))
-filenames_T04 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_T04 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_T04, value=TRUE))
-filenames_R01 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_R01 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_R01, value=TRUE))
-filenames_R02 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_R02 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_R02, value=TRUE))
-filenames_R03 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_R03 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_R03, value=TRUE))
 
 
+
 #########################################################################################
+# define START and END date to create a reference (background brightness temperature) ###
+
+
+DATE <- date(time)
+# DATE <- as.numeric(DATE)
+start <- DATE-3  # DATE-15
+end <- DATE-1   # DATE-1 (always)
+
+# DATE <- format(DATE, format="%Y%m%d")
+# start <- format(start, format="%Y%m%d")
+# end <- format(end, format="%Y%m%d")
+
+# start_year <- str_sub(start, start = 0, end = -7)
+# start_month <- str_sub(start, start = 6, end = -4)
+# start_day <- str_sub(start, start = 9, end = -1)
+# start <- paste0(start_year,start_month,start_day)
+# 
+# end_year <- str_sub(end, start = 0, end = -7)
+# end_month <- str_sub(end, start = 6, end = -4)
+# end_day <- str_sub(end, start = 9, end = -1)
+# end <- paste0(end_year, end_month, end_day)
+
+TS <- seq(from=start, by=1, to=end)
+TS <- format(TS, format="%Y%m%d")
+# TS <- as.numeric(TS)
 
 
 # x = 3315 lines
@@ -137,27 +157,88 @@ ymn = min(LAT)
 ymx = max(LAT)
 
 # make an empty matrix
+# BTDref <- matrix(0, nrow = 3315, ncol = 3712)
+BTDREF <- matrix(0, nrow = 3315, ncol = 3712)
 Missing_file <- data.frame(matrix(0, ncol = 1, nrow = 30))
 
 
-# inizialize an empty raster stack for each DAY  
-# all_rasters <- stack() 
+# t <- DATE
+
+
+
+##################################
+# create reference background ####
+################################## 
+
 count1 <- 0
+
+# for (i in 1:length(filenames_T07)) {
+
+for (t in TS) {
+  
+# t <- TS[1]
+# t <- as.character(t) 
+filenames_T07_ref <- dir("/research/SEVIRI_data_Raw_data/T07", pattern = t)
+filenames_T07_ref <- filenames_T07_ref[grep(".img", filenames_T07_ref, fixed = T)]
+filenames_T09_ref <- dir("/research/SEVIRI_data_Raw_data/T09", pattern = t)
+filenames_T09_ref <- filenames_T09_ref[grep(".img", filenames_T09_ref, fixed = T)]
+
+DATE <- date(time)
+DATE <- DATE-3
+DATE <- format(DATE, format="%Y%m%d")
+
+# j <- 10
+
+for (j in 1:length(filenames_T07_ref)) {
+  remove(A1, A2)
+  
+tryCatch({
+  A1 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T07/",filenames_T07_ref[j]))
+  A1 <- as.matrix(A1)+273  # conversion into degrees Kelvin
+  A2 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T09/",filenames_T09_ref[j]))
+  A2 <- as.matrix(A2)+273
+  count1 <- count1 + 1
+}, error= function(err) { print(paste0("no band T07 & T09"))
+
+}, finally = {
+
+})
+  
+  
+tryCatch({ 
+  if (t == DATE) {
+count1 <- count1 + 1
+BTDref <- A2 - A1 
+}
+
+else {
+ remove(BTD108_087) 
+    BTD108_087 <- A2 - A1
+     BTDref <- pmax(BTDREF, BTD108_087)  # pairwise max between matrices
+     BTDREF <- BTDref
+   # BTDref <- pmax(BTDref, BTD108_087)  # pairwise max between matrices
+  }
+    })
+ }
+
+ }
+
+
+#######################################  
+#### end of building reference ########
+#######################################
+  
+count2 <- 0
+count3 <- 0
 
 # i <- 10
 
 for (i in 1:length(filenames_T07)) {
-  
-
-count2 <- 0
-count3 <- 0
-
-
-  remove(A1, A2, A3, A4, R01, R02, R03)
+  remove(B1, B2, B3)
   
   tryCatch({
-    A1 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T10/",filenames_T10[i]))
-    A1 <- as.matrix(A1)+273
+    B1 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T10/",filenames_T10[i]))
+    B1 <- as.matrix(B1)+273
   }, error= function(err) { print(paste0("no band T10"))
   }, finally = { 
     count3 <- count3 + 1;
@@ -165,8 +246,8 @@ count3 <- 0
   })
   
   tryCatch({
-    A2 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T09/",filenames_T09[i]))
-    A2 <- as.matrix(A2)+273
+    B2 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T09/",filenames_T09[i]))
+    B2 <- as.matrix(B2)+273
     
   }, error= function(err) { print(paste0("no band T09"))
   }, finally = { 
@@ -175,8 +256,8 @@ count3 <- 0
   })
   
   tryCatch({
-    A3 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T07/",filenames_T07[i]))
-    A3 <- as.matrix(A3)+273
+    B3 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T07/",filenames_T07[i]))
+    B3 <- as.matrix(B3)+273
   }, error= function(err) { print(paste0("no band T07"))
   }, finally = { 
     count3 <- count3 + 1;
@@ -223,14 +304,16 @@ count3 <- 0
     Missing_file = filenames_R03[i]
   })
   
-
-  # original Meteofrance Algorithm
-  TB039_TB108 = A4 - A2
-  TB120_TB108 = A1 - A2
-  R006_R016 = R01 / R03
-  R01_P3 = R01
-  TB087_TB108 = A3 - A2
-  Dust_daily_each_time_step <- ((((TB039_TB108 > -10) & (TB120_TB108 > 2.5)) | ((TB039_TB108 > 12) & (TB120_TB108 > 0.6))) | (((TB120_TB108 > -1) & (TB087_TB108 > -1) &  (R006_R016 < 0.8)) | ((TB120_TB108 > -1) & (TB087_TB108 > min(-1,2.5-0.18*R01_P3)) & (R006_R016 < 0.7))))
+  
+  remove(BT108, BT120_BT108, BT108_BT087, BTD108_087anom)
+  count2 <- count2 + 1
+  BT108 <- B2
+  BT120_BT108 <- B1 - B2
+  BT108_BT087 <- B2 - B3
+  BTD108_087anom <- BT108_BT087 - BTDref
+  # create a stacked raster
+ # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+  Dust_daily_each_time_step <- ((BT108 >= 301) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
   
   MASK <- Dust_daily_each_time_step*1
@@ -245,7 +328,7 @@ count3 <- 0
   ########################################
   ########################################
   
-  
+
   # convert logical vector (TRUE & FALSE) into 0 & 1
   Dust_daily_each_time_step <- Dust_daily_each_time_step*2
   max(Dust_daily_each_time_step)
@@ -254,9 +337,15 @@ count3 <- 0
   min(Dust_daily_each_time_step)
   Dust_daily_each_time_step[Dust_daily_each_time_step == 2] <- 0  #dust flag
   
-  r1 <- R01*Dust_daily_each_time_step + MASK_RED
-  r2 <- R02*Dust_daily_each_time_step + MASK_GREEN
-  r3 <- R03*Dust_daily_each_time_step + MASK_BLUE
+  # r1 <- R01*Dust_daily_each_time_step + MASK_RED
+  # r2 <- R02*Dust_daily_each_time_step + MASK_GREEN
+  # r3 <- R03*Dust_daily_each_time_step + MASK_BLUE
+  
+  # FALSE colors for the nighttime (only infrared bands)
+  
+  r1 <- (B1-B2)*Dust_daily_each_time_step + MASK_RED
+  r2 <- (B2-A4)*Dust_daily_each_time_step + MASK_GREEN
+  r3 <- B2*Dust_daily_each_time_step + MASK_BLUE
   
   
   MASK_RED <-  t(MASK_RED)
@@ -289,51 +378,71 @@ count3 <- 0
   # raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
   
   # make and SAVE a geotiff raster
-  writeRaster(rgbRaster, paste0("/home/mariners/RGB_masks_MetFr_tif/",
+  writeRaster(rgbRaster, paste0("/home/mariners/RGB_masks_tif/",
                                 str_sub(filenames_R01[i], start = 1, end = -19),
                                 "_RGB.tif") , options= "INTERLEAVE=BAND", overwrite=T)
   
   
+  # my_leaflet_map <- leaflet() %>%
+  #   addTiles() %>%
+  #   addLayersControl(
+  #     baseGroups = c("Road map", "Toner Lite"),
+  #     # overlayGroups = "SEVIRI",
+  #     options = layersControlOptions(collapsed = TRUE))
+  # 
+  # map <- mapview::viewRGB(rgbRaster, 1, 2, 3, map = my_leaflet_map)
+  # # map
+  # 
+  # 
+  # mapshot(map, url = paste0("/home/mariners/RGB_masks_png/", "/map.html"))
+  # webshot('/home/mariners/RGB_masks_png/map.html', file = paste0("/home/mariners/RGB_masks_png/"
+  #                                   ,str_sub(filenames_R01[i],
+  #                                            start = 1, end = -19),"_RGB.png"),
+  #         vwidth = 680, vheight = 803.5,
+  #         cliprect = 'viewport')
+  
 }
 
+  
 # remove files containing NA
 
-setwd("/home/mariners/RGB_masks_MetFr_tif/")
+setwd("/home/mariners/RGB_masks_tif/")
 patt <- "NA"
 filenames_NA <- list.files(pattern = patt)
 file.remove(filenames_NA) 
 
+
 ############################################################################################
 
+
 # remove files from the early morning and in the might (when the images are dark)
-# setwd("/home/mariners/RGB_masks_MetFr_tif/")
+# setwd("/home/mariners/RGB_masks_tif/")
 # patt <- "tif"
 # filenames_tif <- list.files(pattern = patt)
 # 
 # 
-#   date_day <- str_sub(filenames_tif[1], start =1, end = -13)
-#   morning <- c("0200", "0215", "0230", "0245", "0300", 
-#                "0315", "0330", "0345")
-#   
-#   night <- c(        "1315", "1330", "1345", 
-#              "1400", "1415", "1430", "1445",
-#              "1500","1515", "1530", "1545",
-#               "1600","1615", "1630", "1645",
-#              "1700","1715", "1730", "1745",
-#              "1800","1815", "1830", "1845",
-#              "1900","1915", "1930", "1945",
-#              "2000","2015", "2030", "2045",
-#              "2100","2115", "2130", "2145",
-#              "2200","2215", "2230", "2245",
-#              "2300","2315", "2330", "2345")
-#   
-#   file_remove_morning <- paste0(date_day,morning,"_RGB.tif")
-#   file_remove_night <- paste0(date_day,night,"_RGB.tif")
+# date_day <- str_sub(filenames_tif[1], start =1, end = -13)
+# morning <- c("0200", "0215", "0230", "0245", "0300", 
+#              "0315", "0330", "0345")
 # 
-#   file.remove(file_remove_morning) 
-#   file.remove(file_remove_night) 
-  
-  # end #
-  
+# night <- c(        "1315", "1330", "1345", 
+#                    "1400", "1415", "1430", "1445",
+#                    "1500","1515", "1530", "1545",
+#                    "1600","1615", "1630", "1645",
+#                    "1700","1715", "1730", "1745",
+#                    "1800","1815", "1830", "1845",
+#                    "1900","1915", "1930", "1945",
+#                    "2000","2015", "2030", "2045",
+#                    "2100","2115", "2130", "2145",
+#                    "2200","2215", "2230", "2245",
+#                    "2300","2315", "2330", "2345")
+# 
+# file_remove_morning <- paste0(date_day,morning,"_RGB.tif")
+# file_remove_night <- paste0(date_day,night,"_RGB.tif")
+# 
+# file.remove(file_remove_morning) 
+# file.remove(file_remove_night) 
+
+
 
 

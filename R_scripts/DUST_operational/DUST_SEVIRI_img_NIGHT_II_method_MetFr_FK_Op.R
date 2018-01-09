@@ -77,7 +77,6 @@ filenames_R03 <- filenames_R03[grep(".img", filenames_R03, fixed = T)]
 n <- length(filenames_R03)
 filenames_R03 <- filenames_R03[9:n]
 
-
 ##################################
 # load solar zenith angle data ###
 ##################################
@@ -88,40 +87,39 @@ Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Z
 Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
 
 # daytime
-year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
-month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
-day <- str_sub(Solar_Zenith_DAYTIME, start = 9, end = -10)
-hour <- str_sub(Solar_Zenith_DAYTIME, start = 12, end = -7)
-minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
-Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
-Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
+# year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
+# month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
+# day <- str_sub(Solar_Zenith_DAYTIME, start = 9, end = -10)
+# hour <- str_sub(Solar_Zenith_DAYTIME, start = 12, end = -7)
+# minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
+# Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
+# Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
 
 ### nighttime
-# year <- str_sub(Solar_Zenith_NIGHTTIME, start = 0, end = -16)
-# month <- str_sub(Solar_Zenith_NIGHTTIME, start = 6, end = -13)
-# day <- str_sub(Solar_Zenith_NIGHTTIME, start = 9, end = -10)
-# hour <- str_sub(Solar_Zenith_NIGHTTIME, start = 12, end = -7)
-# minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
-# Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
-# Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
+year <- str_sub(Solar_Zenith_NIGHTTIME, start = 0, end = -16)
+month <- str_sub(Solar_Zenith_NIGHTTIME, start = 6, end = -13)
+day <- str_sub(Solar_Zenith_NIGHTTIME, start = 9, end = -10)
+hour <- str_sub(Solar_Zenith_NIGHTTIME, start = 12, end = -7)
+minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
+Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
+Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
 
 
 # find matches between seviri bands @ nighttime 
-filenames_T07 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_T07, value=TRUE))
-filenames_T09 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_T07 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+                                filenames_T07, value=TRUE))
+filenames_T09 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_T09, value=TRUE))
-filenames_T10 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_T10 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_T10, value=TRUE))
-filenames_T04 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_T04 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_T04, value=TRUE))
-filenames_R01 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_R01 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_R01, value=TRUE))
-filenames_R02 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_R02 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_R02, value=TRUE))
-filenames_R03 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+filenames_R03 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
                               filenames_R03, value=TRUE))
-
 
 #########################################################################################
 
@@ -254,9 +252,15 @@ count3 <- 0
   min(Dust_daily_each_time_step)
   Dust_daily_each_time_step[Dust_daily_each_time_step == 2] <- 0  #dust flag
   
-  r1 <- R01*Dust_daily_each_time_step + MASK_RED
-  r2 <- R02*Dust_daily_each_time_step + MASK_GREEN
-  r3 <- R03*Dust_daily_each_time_step + MASK_BLUE
+  # r1 <- R01*Dust_daily_each_time_step + MASK_RED
+  # r2 <- R02*Dust_daily_each_time_step + MASK_GREEN
+  # r3 <- R03*Dust_daily_each_time_step + MASK_BLUE
+  
+  # FALSE colors for the nighttime (only infrared bands)
+  
+  r1 <- (A1-A2)*Dust_daily_each_time_step + MASK_RED
+  r2 <- (A2-A4)*Dust_daily_each_time_step + MASK_GREEN
+  r3 <- A2*Dust_daily_each_time_step + MASK_BLUE
   
   
   MASK_RED <-  t(MASK_RED)
@@ -285,6 +289,7 @@ count3 <- 0
   
   # create and RGB image ########
   rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Green, Blue)
+  rgbRaster <- stack(r1,r2,r3)   #RGB == R03, R02, R01 (Red, Green, Blue)
   # plot an RGB version of the stack
   # raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
   
@@ -332,8 +337,8 @@ file.remove(filenames_NA)
 # 
 #   file.remove(file_remove_morning) 
 #   file.remove(file_remove_night) 
-  
-  # end #
+#   
+#   # end #
   
 
 
