@@ -15,6 +15,7 @@ setwd("/research/SEVIRI_data_Raw_data/")
 source("/home/mariners/SEVIRI_DUST/extract_pnt_raster.R")
 
 time <- Sys.time()
+time <- time - 14400
 year <- str_sub(time, start = 0, end = -16)
 month <- str_sub(time, start = 6, end = -13)
 day <- str_sub(time, start = 9, end = -10)
