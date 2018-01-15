@@ -79,8 +79,10 @@ filenames_R03 <- filenames_R03[9:n]
 
 extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
 
-Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
-Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
 
 # daytime
 # year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
@@ -101,20 +103,33 @@ Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
 Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
 
 
-# find matches between seviri bands @ nighttime 
-filenames_T07 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+if (nrow(Solar_Zenith_NIGHTTIME)==0) {
+Solar_Zenith_NIGHTTIME <- "AAA"
+filenames_T07 <- NULL
+filenames_T09 <- NULL
+filenames_T10 <- NULL
+filenames_T04 <- NULL
+filenames_R01 <- NULL
+filenames_R02 <- NULL 
+filenames_R03 <- NULL
+}
+
+
+
+# find matches between seviri bands @ nighttime
+filenames_T07 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
                               filenames_T07, value=TRUE))
-filenames_T09 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+filenames_T09 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
                               filenames_T09, value=TRUE))
-filenames_T10 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+filenames_T10 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
                               filenames_T10, value=TRUE))
-filenames_T04 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+filenames_T04 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
                               filenames_T04, value=TRUE))
-filenames_R01 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+filenames_R01 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
                               filenames_R01, value=TRUE))
-filenames_R02 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+filenames_R02 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
                               filenames_R02, value=TRUE))
-filenames_R03 <- unique (grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"), 
+filenames_R03 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
                               filenames_R03, value=TRUE))
 
 
@@ -314,7 +329,7 @@ for (i in 1:length(filenames_T07)) {
   BTD108_087anom <- BT108_BT087 - BTDref
   # create a stacked raster
  # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-  Dust_daily_each_time_step <- ((BT108 >= 301) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+  Dust_daily_each_time_step <- ((BT108 >= 302) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
   
   MASK <- Dust_daily_each_time_step*1
@@ -374,7 +389,7 @@ for (i in 1:length(filenames_T07)) {
   # plot(DUST_mask)
   
   # create and RGB image ########
-  rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Green, Blue)
+  rgbRaster <- stack(r1,r2,r3)   #RGB == R03, R02, R01 (Red, Green, Blue)
   # plot an RGB version of the stack
   # raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
   

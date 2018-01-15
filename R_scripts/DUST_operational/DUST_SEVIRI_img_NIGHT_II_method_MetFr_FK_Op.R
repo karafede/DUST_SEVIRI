@@ -21,7 +21,7 @@ filenames <- list.files(pattern = patt)
 # min_val
 
 
-# file.remove(filenames) 
+file.remove(filenames) 
 
 
 setwd("/research/SEVIRI_data_Raw_data/")
@@ -289,8 +289,9 @@ count3 <- 0
   # plot(DUST_mask)
   
   # create and RGB image ########
-  rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Green, Blue)
-  rgbRaster <- stack(r1,r2,r3)   #RGB == R03, R02, R01 (Red, Green, Blue)
+  # rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Green, Blue)
+  rgbRaster <- stack(r1,r2,r3) 
+
   # plot an RGB version of the stack
   # raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
   

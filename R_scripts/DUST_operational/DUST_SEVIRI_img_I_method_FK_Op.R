@@ -80,8 +80,11 @@ filenames_R03 <- filenames_R03[9:n]
 
 extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
 
-Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
-Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
+
 
 # daytime
 year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
@@ -92,6 +95,7 @@ minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
 Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
 Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
 
+
 ### nighttime
 # year <- str_sub(Solar_Zenith_NIGHTTIME, start = 0, end = -16)
 # month <- str_sub(Solar_Zenith_NIGHTTIME, start = 6, end = -13)
@@ -100,6 +104,11 @@ Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
 # minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
 # Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
 # Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
+
+
+if (nrow(Solar_Zenith_DAYTIME)==0) {
+  Solar_Zenith_DAYTIME <- "AAA"
+}
 
 
 # find matches between seviri bands @ nighttime 
@@ -314,7 +323,7 @@ for (i in 1:length(filenames_T07)) {
   BTD108_087anom <- BT108_BT087 - BTDref
   # create a stacked raster
  # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-  Dust_daily_each_time_step <- ((BT108 >= 301) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+  Dust_daily_each_time_step <- ((BT108 >= 302) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
   
   MASK <- Dust_daily_each_time_step*1
