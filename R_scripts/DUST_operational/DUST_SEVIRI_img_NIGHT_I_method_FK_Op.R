@@ -79,10 +79,10 @@ filenames_R03 <- filenames_R03[9:n]
 
 extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
 
-# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
-# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
-Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
-Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
+Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
+Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
 
 # daytime
 # year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
@@ -329,7 +329,7 @@ for (i in 1:length(filenames_T07)) {
   BTD108_087anom <- BT108_BT087 - BTDref
   # create a stacked raster
  # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-  Dust_daily_each_time_step <- ((BT108 >= 302) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+  Dust_daily_each_time_step <- ((BT108 >= 289) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
   
   MASK <- Dust_daily_each_time_step*1
@@ -338,6 +338,16 @@ for (i in 1:length(filenames_T07)) {
   
   ### best colors for the MASK ###########
   ########################################
+  # MASK_RED <- MASK*345
+  # MASK_GREEN <- MASK*300
+  # MASK_BLUE <- MASK*276
+  
+  # pink dust
+  # MASK_RED <- MASK*255
+  # MASK_GREEN <- MASK*96
+  # MASK_BLUE <- MASK*202
+  
+  # yellow dust
   MASK_RED <- MASK*345
   MASK_GREEN <- MASK*300
   MASK_BLUE <- MASK*276
@@ -360,7 +370,7 @@ for (i in 1:length(filenames_T07)) {
   # FALSE colors for the nighttime (only infrared bands)
   
   r1 <- (B1-B2)*Dust_daily_each_time_step + MASK_RED
-  r2 <- (B2-A4)*Dust_daily_each_time_step + MASK_GREEN
+  r2 <- (B2-B3)*Dust_daily_each_time_step + MASK_GREEN
   r3 <- B2*Dust_daily_each_time_step + MASK_BLUE
   
   

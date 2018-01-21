@@ -85,6 +85,8 @@ filenames_R03 <- filenames_R03[9:n]
 
 extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
 
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
 Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
 Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
 
@@ -105,6 +107,11 @@ Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
 # minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
 # Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
 # Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
+
+
+if (nrow(Solar_Zenith_DAYTIME)==0) {
+  Solar_Zenith_DAYTIME <- "AAA"
+}
 
 
 # find matches between seviri bands @ nighttime 

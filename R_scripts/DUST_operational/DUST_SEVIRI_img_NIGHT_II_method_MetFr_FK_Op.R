@@ -87,6 +87,9 @@ extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_
 Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
 Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
 
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
+
 # daytime
 # year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
 # month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
@@ -104,6 +107,19 @@ hour <- str_sub(Solar_Zenith_NIGHTTIME, start = 12, end = -7)
 minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
 Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
 Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
+
+
+if (nrow(Solar_Zenith_NIGHTTIME)==0) {
+  Solar_Zenith_NIGHTTIME <- "AAA"
+  filenames_T07 <- NULL
+  filenames_T09 <- NULL
+  filenames_T10 <- NULL
+  filenames_T04 <- NULL
+  filenames_R01 <- NULL
+  filenames_R02 <- NULL 
+  filenames_R03 <- NULL
+}
+
 
 
 # find matches between seviri bands @ nighttime 
@@ -238,6 +254,16 @@ count3 <- 0
   
   ### best colors for the MASK ###########
   ########################################
+  # MASK_RED <- MASK*345
+  # MASK_GREEN <- MASK*300
+  # MASK_BLUE <- MASK*276
+  
+  # pink dust
+  # MASK_RED <- MASK*255
+  # MASK_GREEN <- MASK*96
+  # MASK_BLUE <- MASK*202
+  
+  # yellow dust
   MASK_RED <- MASK*345
   MASK_GREEN <- MASK*300
   MASK_BLUE <- MASK*276
@@ -260,7 +286,7 @@ count3 <- 0
   # FALSE colors for the nighttime (only infrared bands)
   
   r1 <- (A1-A2)*Dust_daily_each_time_step + MASK_RED
-  r2 <- (A2-A4)*Dust_daily_each_time_step + MASK_GREEN
+  r2 <- (A2-A3)*Dust_daily_each_time_step + MASK_GREEN
   r3 <- A2*Dust_daily_each_time_step + MASK_BLUE
   
   
@@ -289,7 +315,7 @@ count3 <- 0
   # plot(DUST_mask)
   
   # create and RGB image ########
-  # rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Green, Blue)
+#   rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Green, Blue)
   rgbRaster <- stack(r1,r2,r3) 
 
   # plot an RGB version of the stack
