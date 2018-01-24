@@ -84,11 +84,11 @@ filenames_R03 <- filenames_R03[9:n]
 
 extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
 
-Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
-Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
 
-# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
-# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
+Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
 
 # daytime
 # year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
@@ -259,14 +259,14 @@ count3 <- 0
   # MASK_BLUE <- MASK*276
   
   # pink dust
-  # MASK_RED <- MASK*255
-  # MASK_GREEN <- MASK*96
-  # MASK_BLUE <- MASK*202
+  MASK_RED <- MASK*255
+  MASK_GREEN <- MASK*96
+  MASK_BLUE <- MASK*202
   
   # yellow dust
-  MASK_RED <- MASK*345
-  MASK_GREEN <- MASK*300
-  MASK_BLUE <- MASK*276
+  # MASK_RED <- MASK*205
+  # MASK_GREEN <- MASK*300
+  # MASK_BLUE <- MASK*276
   ########################################
   ########################################
   
@@ -287,6 +287,7 @@ count3 <- 0
   
   r1 <- (A1-A2)*Dust_daily_each_time_step + MASK_RED
   r2 <- (A2-A3)*Dust_daily_each_time_step + MASK_GREEN
+#  r2 <- (A2-A4)*Dust_daily_each_time_step + MASK_GREEN
   r3 <- A2*Dust_daily_each_time_step + MASK_BLUE
   
   
