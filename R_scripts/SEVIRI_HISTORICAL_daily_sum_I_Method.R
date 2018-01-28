@@ -29,6 +29,9 @@ patt <- ".nc"
 filenames <- list.files(pattern = patt)
 # filenames <- filenames[1] 
 # filenames <- filenames[3748] # 96 scenes  20150331
+n <- length(filenames)
+# filenames <- filenames[2041:n]
+filenames <- filenames[4137:n]
 
 # get the date from the filename
 # year <- str_sub(filenames, start = 8, end = -17)
