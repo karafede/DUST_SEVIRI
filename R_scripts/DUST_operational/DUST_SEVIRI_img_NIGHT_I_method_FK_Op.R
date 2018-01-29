@@ -371,14 +371,14 @@ for (i in 1:length(filenames_T07)) {
   
   # FALSE colors for the nighttime (only infrared bands)
 #   r1 <- (B1-B2)*Dust_daily_each_time_step + MASK_RED
-#   r2 <- (B2-B3)*Dust_daily_each_time_step + MASK_GREEN
-# #  r2 <- (B2-A4)*Dust_daily_each_time_step + MASK_GREEN
+# #  r2 <- (B2-B3)*Dust_daily_each_time_step + MASK_GREEN
+#   r2 <- (B2-A4)*Dust_daily_each_time_step + MASK_GREEN
 #   r3 <- B2*Dust_daily_each_time_step + MASK_BLUE
   
   #### no mask #####################################
   r1 <- (B1-B2)*Dust_daily_each_time_step
   r2 <- (B2-B3)*Dust_daily_each_time_step
-  #  r2 <- (B2-A4)*Dust_daily_each_time_step
+#  r2 <- (B2-A4)*Dust_daily_each_time_step
   r3 <- B2*Dust_daily_each_time_step
   ##################################################
   

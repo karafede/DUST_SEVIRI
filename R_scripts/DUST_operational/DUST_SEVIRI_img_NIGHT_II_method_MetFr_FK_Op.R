@@ -254,14 +254,14 @@ count3 <- 0
   
   ### best colors for the MASK ###########
   ########################################
-  # MASK_RED <- MASK*345
-  # MASK_GREEN <- MASK*300
-  # MASK_BLUE <- MASK*276
+  MASK_RED <- MASK*345
+  MASK_GREEN <- MASK*300
+  MASK_BLUE <- MASK*276
   
   # pink dust
-  MASK_RED <- MASK*255
-  MASK_GREEN <- MASK*96
-  MASK_BLUE <- MASK*202
+  # MASK_RED <- MASK*255
+  # MASK_GREEN <- MASK*96
+  # MASK_BLUE <- MASK*202
   
   # yellow dust
   # MASK_RED <- MASK*205
