@@ -9,7 +9,7 @@ library(NISTunits)
 library(stringr)
 
 
-setwd("F:/Historical_DUST/SEVIRI_DUST_MASK_outputs/daily_sum_II_Method")
+setwd("F:/Historical_DUST")
 source("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts/extract_pnt_raster.R")
 
 
@@ -18,108 +18,131 @@ source("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts/extract_pnt
 sites_Airports_UAE <- read.csv("F:/Historical_DUST/Airport_Locations_UAE.csv")
 
 
-
 #############################################################################################
-# read SUM of DAILY DUST EVENTS from STACKED Rasters ########################################
+# read of DAILY AOD EVENTS from STACKED Rasters #############################################
 #############################################################################################
 ## make a function that reads each station at each time and extract points ##################
 ##############################################################################################
 
+#################
+# MODIS AQUA ####
+#################
 
-#################################################
-#### II Method Met France Original ##############
-#################################################
-
-setwd("F:/Historical_DUST/SEVIRI_DUST_MASK_outputs/daily_sum_II_Method")
+setwd("F:/Historical_DUST")
 filenames <- list.files(pattern = ".tif$")
 
-# read rasters of the DAILY SUM of DUST EVENTS with SEVIRI data (II method)
+raster_AQUA <- stack("all_DAYS_AQUA.tif")
+n <- length(raster_AQUA@layers)
+date_aqua <- read.csv("dates_AQUA_2004_2017.csv")  # n rows as the same number of rasters
+
+extracted_AOD <- NULL
+DateTime_AOD <- NULL
+site_AOD <- NULL
 
 i <- 7
-# filenames <- filenames[i]
 
-extracted_SUM_DUST <- NULL
-DateTime_DUST <- NULL
-site_DUST <- NULL
+for (i in 1:n) {
 
-for (i in 1:length(filenames)) {
-
-year <- str_sub(filenames[i], start= 1, end=-35)
-month <- str_sub(filenames[i], start= 5, end=-33)
-day <- str_sub(filenames[i], start= 7, end=-31)
-DATE <- paste0(year,"-", month, "-", day)
-TS <- as.Date(DATE)
+TS <- date_aqua$TS_AQUA[i]
+TS <- as.POSIXct(TS)
+TS <- as.Date(TS)
 class(TS)
 
+AOD_raster_AQUA <- raster("all_DAYS_AQUA.tif", band = i)  
+ plot(AOD_raster_AQUA)
 
- SUM_DAILY_DUST_raster <- raster(filenames[i])
- plot(SUM_DAILY_DUST_raster)
-
-  EXTRACTED_DUST <- extract_points(SUM_DAILY_DUST_raster, sites_Airports_UAE)
-  extracted_SUM_DUST = rbind(extracted_SUM_DUST, EXTRACTED_DUST)    
-  DATETIME_DUST <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
-  DateTime_DUST <- rbind(DateTime_DUST, DATETIME_DUST)
-  SITE_DUST <- as.data.frame(sites_Airports_UAE$Site)
-  site_DUST <- rbind(site_DUST, SITE_DUST)
+  EXTRACTED_AOD <- extract_points(AOD_raster_AQUA, sites_Airports_UAE)
+  extracted_AOD = rbind(extracted_AOD, EXTRACTED_AOD)    
+  DATETIME_AOD <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
+  DateTime_AOD <- rbind(DateTime_AOD, DATETIME_AOD)
+  SITE_AOD <- as.data.frame(sites_Airports_UAE$Site)
+  site_AOD <- rbind(site_AOD, SITE_AOD)
   
  }
 
-extracted_SUM_DUST <- cbind(DateTime_DUST, extracted_SUM_DUST, site_DUST)
-colnames(extracted_SUM_DUST) <- c("DateTime", "SUM_DAILY_DUST", "station")
+extracted_AOD <- cbind(DateTime_AOD, extracted_AOD, site_AOD)
+colnames(extracted_AOD) <- c("DateTime", "DAILY_AOD_AQUA", "station")
 
 
 # save data-------------------------------------
-write.csv(extracted_SUM_DUST, "F:/Historical_DUST/extracted_SUM_DAILY_DUST_UAE_Airports_II_Method.csv")
-extracted_SUM_DUST <- read.csv("F:/Historical_DUST/extracted_SUM_DAILY_DUST_UAE_Airports_II_Method.csv")
+write.csv(extracted_AOD, "F:/Historical_DUST/extracted_AOD_AQUA_DAILY_UAE_Airports.csv")
+extracted_AOD_AQUA <- read.csv("F:/Historical_DUST/extracted_AOD_AQUA_DAILY_UAE_Airports.csv")
 
-##########################################################################################################
-##########################################################################################################
 
-#################################################
-#### I Method ###################################
-#################################################
+#################################################################################################
+#################################################################################################
 
-# read rasters of the DAILY SUM of DUST EVENTS with SEVIRI data (I method)
 
-setwd("F:/Historical_DUST/SEVIRI_DUST_MASK_outputs/daily_sum_I_Method")
+#################
+# MODIS TERRA ###
+#################
+
+setwd("F:/Historical_DUST")
 filenames <- list.files(pattern = ".tif$")
 
+raster_TERRA <- stack("all_DAYS_TERRA.tif")
+n <- length(raster_TERRA@layers)
+date_terra <- read.csv("dates_TERRA_2004_2017.csv")  # n rows as the same number of rasters
+
+extracted_AOD <- NULL
+DateTime_AOD <- NULL
+site_AOD <- NULL
+
 i <- 7
-# filenames <- filenames[i]
 
-extracted_SUM_DUST <- NULL
-DateTime_DUST <- NULL
-site_DUST <- NULL
-
-for (i in 1:length(filenames)) {
+for (i in 1:n) {
   
-  year <- str_sub(filenames[i], start= 1, end=-22)
-  month <- str_sub(filenames[i], start= 5, end=-20)
-  day <- str_sub(filenames[i], start= 7, end=-18)
-  DATE <- paste0(year,"-", month, "-", day)
-  TS <- as.Date(DATE)
+  TS <- date_terra$TS_TERRA[i]
+  TS <- as.POSIXct(TS)
+  TS <- as.Date(TS)
   class(TS)
   
+  AOD_raster_TERRA <- raster("all_DAYS_TERRA.tif", band = i)  
+  plot(AOD_raster_TERRA)
   
-  SUM_DAILY_DUST_raster <- raster(filenames[i])
-  plot(SUM_DAILY_DUST_raster)
-  
-  EXTRACTED_DUST <- extract_points(SUM_DAILY_DUST_raster, sites_Airports_UAE)
-  extracted_SUM_DUST = rbind(extracted_SUM_DUST, EXTRACTED_DUST)    
-  DATETIME_DUST <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
-  DateTime_DUST <- rbind(DateTime_DUST, DATETIME_DUST)
-  SITE_DUST <- as.data.frame(sites_Airports_UAE$Site)
-  site_DUST <- rbind(site_DUST, SITE_DUST)
+  EXTRACTED_AOD <- extract_points(AOD_raster_TERRA, sites_Airports_UAE)
+  extracted_AOD = rbind(extracted_AOD, EXTRACTED_AOD)    
+  DATETIME_AOD <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
+  DateTime_AOD <- rbind(DateTime_AOD, DATETIME_AOD)
+  SITE_AOD <- as.data.frame(sites_Airports_UAE$Site)
+  site_AOD <- rbind(site_AOD, SITE_AOD)
   
 }
 
-extracted_SUM_DUST <- cbind(DateTime_DUST, extracted_SUM_DUST, site_DUST)
-colnames(extracted_SUM_DUST) <- c("DateTime", "SUM_DAILY_DUST", "station")
+extracted_AOD <- cbind(DateTime_AOD, extracted_AOD, site_AOD)
+colnames(extracted_AOD) <- c("DateTime", "DAILY_AOD_TERRA", "station")
 
 
 # save data-------------------------------------
-write.csv(extracted_SUM_DUST, "F:/Historical_DUST/extracted_SUM_DAILY_DUST_UAE_Airports_I_Method.csv")
-extracted_SUM_DUST <- read.csv("F:/Historical_DUST/extracted_SUM_DAILY_DUST_UAE_Airports_I_Method.csv")
+write.csv(extracted_AOD, "F:/Historical_DUST/extracted_AOD_TERRA_DAILY_UAE_Airports.csv")
+extracted_AOD_TERRA <- read.csv("F:/Historical_DUST/extracted_AOD_TERRA_DAILY_UAE_Airports.csv")
+
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+##########################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #######################
 #### End of data extraction
