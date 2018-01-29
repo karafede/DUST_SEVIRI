@@ -16,6 +16,7 @@ source("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts/extract_pnt
 # load location of airport in the UAE
 
 sites_Airports_UAE <- read.csv("F:/Historical_DUST/Airport_Locations_UAE.csv")
+rows <- nrow(sites_Airports_UAE)
 
 
 #############################################################################################
@@ -39,9 +40,9 @@ extracted_AOD <- NULL
 DateTime_AOD <- NULL
 site_AOD <- NULL
 
-i <- 7
+i <- 14
 
-for (i in 1:n) {
+for (i in 1:20) {
 
 TS <- date_aqua$TS_AQUA[i]
 TS <- as.POSIXct(TS)
@@ -50,15 +51,21 @@ class(TS)
 
 AOD_raster_AQUA <- raster("all_DAYS_AQUA.tif", band = i)  
  plot(AOD_raster_AQUA)
-
-  EXTRACTED_AOD <- extract_points(AOD_raster_AQUA, sites_Airports_UAE)
+ # values <- values(AOD_raster_AQUA)
+ 
+ if (all(is.na(values(AOD_raster_AQUA)))) {
+   EXTRACTED_AOD <- data.frame(matrix(999, ncol = 1, nrow = rows))
+   colnames(EXTRACTED_AOD) <- "values_extr"
+   }  else {
+     EXTRACTED_AOD <- extract_points(AOD_raster_AQUA, sites_Airports_UAE)
+   }
   extracted_AOD = rbind(extracted_AOD, EXTRACTED_AOD)    
   DATETIME_AOD <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
   DateTime_AOD <- rbind(DateTime_AOD, DATETIME_AOD)
   SITE_AOD <- as.data.frame(sites_Airports_UAE$Site)
   site_AOD <- rbind(site_AOD, SITE_AOD)
-  
- }
+   
+}
 
 extracted_AOD <- cbind(DateTime_AOD, extracted_AOD, site_AOD)
 colnames(extracted_AOD) <- c("DateTime", "DAILY_AOD_AQUA", "station")
@@ -67,6 +74,8 @@ colnames(extracted_AOD) <- c("DateTime", "DAILY_AOD_AQUA", "station")
 # save data-------------------------------------
 write.csv(extracted_AOD, "F:/Historical_DUST/extracted_AOD_AQUA_DAILY_UAE_Airports.csv")
 extracted_AOD_AQUA <- read.csv("F:/Historical_DUST/extracted_AOD_AQUA_DAILY_UAE_Airports.csv")
+
+
 
 
 #################################################################################################
@@ -100,13 +109,18 @@ for (i in 1:n) {
   AOD_raster_TERRA <- raster("all_DAYS_TERRA.tif", band = i)  
   plot(AOD_raster_TERRA)
   
+  if (all(is.na(values(AOD_raster_TERRA)))) {
+    EXTRACTED_AOD <- data.frame(matrix(999, ncol = 1, nrow = rows))
+    colnames(EXTRACTED_AOD) <- "values_extr"
+  }  else {
+    EXTRACTED_AOD <- extract_points(AOD_raster_TERRA, sites_Airports_UAE)
+  }
   EXTRACTED_AOD <- extract_points(AOD_raster_TERRA, sites_Airports_UAE)
   extracted_AOD = rbind(extracted_AOD, EXTRACTED_AOD)    
   DATETIME_AOD <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
   DateTime_AOD <- rbind(DateTime_AOD, DATETIME_AOD)
   SITE_AOD <- as.data.frame(sites_Airports_UAE$Site)
   site_AOD <- rbind(site_AOD, SITE_AOD)
-  
 }
 
 extracted_AOD <- cbind(DateTime_AOD, extracted_AOD, site_AOD)
