@@ -9,159 +9,9 @@ library(NISTunits)
 library(stringr)
 
 
-setwd("F:/Historical_DUST")
-source("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts/extract_pnt_raster.R")
+setwd("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/HISTORICAL_dust/METAR_data/visibility")
 
-
-# load location of airport in the UAE
-
-sites_Airports_UAE <- read.csv("F:/Historical_DUST/Airport_Locations_UAE.csv")
-rows <- nrow(sites_Airports_UAE)
-
-
-#############################################################################################
-# read of DAILY AOD EVENTS from STACKED Rasters #############################################
-#############################################################################################
-## make a function that reads each station at each time and extract points ##################
-##############################################################################################
-
-#################
-# MODIS AQUA ####
-#################
-
-setwd("F:/Historical_DUST")
-filenames <- list.files(pattern = ".tif$")
-
-raster_AQUA <- stack("all_DAYS_AQUA.tif")
-n <- length(raster_AQUA@layers)
-date_aqua <- read.csv("dates_AQUA_2004_2017.csv")  # n rows as the same number of rasters
-
-extracted_AOD <- NULL
-DateTime_AOD <- NULL
-site_AOD <- NULL
-
-i <- 14
-
-for (i in 1:n) {
-
-TS <- date_aqua$TS_AQUA[i]
-TS <- as.POSIXct(TS)
-TS <- as.Date(TS)
-class(TS)
-
-AOD_raster_AQUA <- raster("all_DAYS_AQUA.tif", band = i)  
- plot(AOD_raster_AQUA)
- # values <- values(AOD_raster_AQUA)
- 
- if (all(is.na(values(AOD_raster_AQUA)))) {
-   EXTRACTED_AOD <- data.frame(matrix(999, ncol = 1, nrow = rows))
-   colnames(EXTRACTED_AOD) <- "values_extr"
-   }  else {
-     EXTRACTED_AOD <- extract_points(AOD_raster_AQUA, sites_Airports_UAE)
-   }
-  extracted_AOD = rbind(extracted_AOD, EXTRACTED_AOD)    
-  DATETIME_AOD <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
-  DateTime_AOD <- rbind(DateTime_AOD, DATETIME_AOD)
-  SITE_AOD <- as.data.frame(sites_Airports_UAE$Site)
-  site_AOD <- rbind(site_AOD, SITE_AOD)
-   
-}
-
-extracted_AOD <- cbind(DateTime_AOD, extracted_AOD, site_AOD)
-colnames(extracted_AOD) <- c("DateTime", "DAILY_AOD_AQUA", "station")
-
-
-# save data-------------------------------------
-write.csv(extracted_AOD, "F:/Historical_DUST/extracted_AOD_AQUA_DAILY_UAE_Airports.csv")
-extracted_AOD_AQUA <- read.csv("F:/Historical_DUST/extracted_AOD_AQUA_DAILY_UAE_Airports.csv")
-
-
-
-
-#################################################################################################
-#################################################################################################
-
-
-#################
-# MODIS TERRA ###
-#################
-
-setwd("F:/Historical_DUST")
-filenames <- list.files(pattern = ".tif$")
-
-raster_TERRA <- stack("all_DAYS_TERRA.tif")
-n <- length(raster_TERRA@layers)
-date_terra <- read.csv("dates_TERRA_2004_2017.csv")  # n rows as the same number of rasters
-
-extracted_AOD <- NULL
-DateTime_AOD <- NULL
-site_AOD <- NULL
-
-i <- 14
-
-for (i in 1:n) {
-  
-  TS <- date_terra$TS_TERRA[i]
-  TS <- as.POSIXct(TS)
-  TS <- as.Date(TS)
-  class(TS)
-  
-  AOD_raster_TERRA <- raster("all_DAYS_TERRA.tif", band = i)  
-  plot(AOD_raster_TERRA)
-  
-  if (all(is.na(values(AOD_raster_TERRA)))) {
-    EXTRACTED_AOD <- data.frame(matrix(999, ncol = 1, nrow = rows))
-    colnames(EXTRACTED_AOD) <- "values_extr"
-  }  else {
-    EXTRACTED_AOD <- extract_points(AOD_raster_TERRA, sites_Airports_UAE)
-  }
-  extracted_AOD = rbind(extracted_AOD, EXTRACTED_AOD)    
-  DATETIME_AOD <- as.data.frame(rep(TS, nrow(sites_Airports_UAE)))           
-  DateTime_AOD <- rbind(DateTime_AOD, DATETIME_AOD)
-  SITE_AOD <- as.data.frame(sites_Airports_UAE$Site)
-  site_AOD <- rbind(site_AOD, SITE_AOD)
-}
-
-extracted_AOD <- cbind(DateTime_AOD, extracted_AOD, site_AOD)
-colnames(extracted_AOD) <- c("DateTime", "DAILY_AOD_TERRA", "station")
-
-
-# save data-------------------------------------
-write.csv(extracted_AOD, "F:/Historical_DUST/extracted_AOD_TERRA_DAILY_UAE_Airports.csv")
-extracted_AOD_TERRA <- read.csv("F:/Historical_DUST/extracted_AOD_TERRA_DAILY_UAE_Airports.csv")
-
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-##########################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#######################
-#### End of data extraction
-
-####################################################################################################
-####################################################################################################
+data_visibility <- read_csv("visibility_data_2004_2017.csv")
 
 ############################################
 ####### time -series #######################
@@ -172,16 +22,16 @@ library(scales)
 library(reshape2)
 
 
-extracted_SUM_DUST_I_Method <- read.csv("F:/Historical_DUST/extracted_SUM_DAILY_DUST_UAE_Airports_I_Method.csv")
-extracted_SUM_DUST_II_Method <- read.csv("F:/Historical_DUST/extracted_SUM_DAILY_DUST_UAE_Airports_II_Method.csv")
-names(extracted_SUM_DUST_I_Method)[names(extracted_SUM_DUST_I_Method) == 'SUM_DAILY_DUST'] <- 'SUM_DAILY_DUST_I_meth'
-names(extracted_SUM_DUST_II_Method)[names(extracted_SUM_DUST_II_Method) == 'SUM_DAILY_DUST'] <- 'SUM_DAILY_DUST_II_meth'
+# names(extracted_SUM_DUST_I_Method)[names(extracted_SUM_DUST_I_Method) == 'SUM_DAILY_DUST'] <- 'SUM_DAILY_DUST_I_meth'
+# names(extracted_SUM_DUST_II_Method)[names(extracted_SUM_DUST_II_Method) == 'SUM_DAILY_DUST'] <- 'SUM_DAILY_DUST_II_meth'
 
-str(extracted_SUM_DUST_I_Method)
-str(extracted_SUM_DUST_II_Method)
+str(data_visibility)
 
-extracted_SUM_DUST_I_Method$DateTime <- ymd(extracted_SUM_DUST_I_Method$DateTime)
-extracted_SUM_DUST_II_Method$DateTime <- ymd(extracted_SUM_DUST_II_Method$DateTime)
+data_visibility$Date <- ymd(data_visibility$Date)
+
+str(data_visibility)
+
+
 
 
 ##### I method ######################################################
