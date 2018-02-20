@@ -9,4 +9,4 @@ cd $mainPath
 Rscript ${mainPath}/DUST_SEVIRI_img_I_method_FK_Op.R
 
 rsync -avz ${dest_folder}/*.tif pvernier@atlas-prod.minet.ae:/home/pvernier/scripts_cron/SEVIRI_dust_RGB 
-# rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-uat:/home/pvernier/scripts_cron/SEVIRI_dust_RGB 
+rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-uat:/home/pvernier/scripts_cron/SEVIRI_dust_RGB 

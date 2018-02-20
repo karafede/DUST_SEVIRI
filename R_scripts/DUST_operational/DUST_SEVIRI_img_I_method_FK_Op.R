@@ -323,7 +323,8 @@ for (i in 1:length(filenames_T07)) {
   BTD108_087anom <- BT108_BT087 - BTDref
   # create a stacked raster
  # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-  Dust_daily_each_time_step <- ((BT108 >= 293) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+ # Dust_daily_each_time_step <- ((BT108 >= 296) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+  Dust_daily_each_time_step <- ((BT108 >= 289) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
   
   MASK <- Dust_daily_each_time_step*1

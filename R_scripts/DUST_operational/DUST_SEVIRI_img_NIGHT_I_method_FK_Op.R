@@ -60,7 +60,7 @@ filenames_T10 <- filenames_T10[9:n]
 filenames_T04 <- dir("/research/SEVIRI_data_Raw_data/T04", pattern = current_date)
 filenames_T04 <- filenames_T04[grep(".img", filenames_T04, fixed = T)]
 n <- length(filenames_T04)
-filenames_T04 <- filenames_T04[9:n]
+filenames_T04 <- filenames_T04[9:n]   # 0.37um IR band
 
 filenames_R01 <- dir("/research/SEVIRI_data_Raw_data/R01", pattern = current_date)
 filenames_R01 <- filenames_R01[grep(".img", filenames_R01, fixed = T)]
@@ -329,7 +329,8 @@ for (i in 1:length(filenames_T07)) {
   BTD108_087anom <- BT108_BT087 - BTDref
   # create a stacked raster
  # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-  Dust_daily_each_time_step <- ((BT108 >= 293) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+ # Dust_daily_each_time_step <- ((BT108 >= 296) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+  Dust_daily_each_time_step <- ((BT108 >= 289) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   
   
   MASK <- Dust_daily_each_time_step*1
@@ -371,8 +372,8 @@ for (i in 1:length(filenames_T07)) {
   
   # FALSE colors for the nighttime (only infrared bands)
 #   r1 <- (B1-B2)*Dust_daily_each_time_step + MASK_RED
-# #  r2 <- (B2-B3)*Dust_daily_each_time_step + MASK_GREEN
-#   r2 <- (B2-A4)*Dust_daily_each_time_step + MASK_GREEN
+#   r2 <- (B2-B3)*Dust_daily_each_time_step + MASK_GREEN
+# #  r2 <- (B2-A4)*Dust_daily_each_time_step + MASK_GREEN
 #   r3 <- B2*Dust_daily_each_time_step + MASK_BLUE
   
   #### no mask #####################################
