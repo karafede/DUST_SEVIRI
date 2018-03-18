@@ -80,7 +80,6 @@ require(sf)
 coordinates_ABU_DHABI <- read.table(text="
                     longitude    latitude
                     54.646    24.43195",
-                                    
                     header=TRUE)
 
 # new coordiantes over AP
@@ -90,9 +89,9 @@ coordinates_ABU_DHABI <- read.table(text="
                     header=TRUE)
 
 coordinates_ABU_DHABI <- read.table(text="
-                    longitude    latitude ID
-                    47.63    21.08  Saudi
-                    55.207   25.008 Dubai", 
+                    longitude    latitude
+                    47.63    21.08",
+                    "54.646    24.43195",
                     header=TRUE)
 
 
@@ -104,20 +103,15 @@ plot(coord_ABU_DHABI_point)
 
 # convert to sp object if needed
 coord_ABU_DHABI_point <- as(coord_ABU_DHABI_point, "Spatial")
-setwd("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/admin_GIS/prova_shapes")
-shapefile(coord_ABU_DHABI_point, "points.shp", overwrite=TRUE)
 
-dir <- "Z:/_SHARED_FOLDERS/Air Quality/Phase 2/admin_GIS/prova_shapes"
-points <- readOGR(dsn = dir, layer = "points")
-plot(points)
-# add a buffer around each point
-shp_buff <- gBuffer(points, width=1, byid=TRUE)
+# shp_buff <- gBuffer(shp_UAE, width=40, byid=TRUE, quadsegs=10)
+shp_buff <- gBuffer(coord_ABU_DHABI_point, width=5)
 shp_buff <- spTransform(shp_buff, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 plot(shp_buff)
 plot(shp_UAE, add=TRUE, lwd=1)
 plot(shp_AP, add=TRUE, lwd=1)
 
-# save shp file for the circular buffer
+# save shp file for the crcular buffer
 setwd("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/admin_GIS/prova_shapes")
 shapefile(shp_buff, "circular_buffer.shp", overwrite=TRUE)
 dir <- "Z:/_SHARED_FOLDERS/Air Quality/Phase 2/admin_GIS/prova_shapes"
@@ -163,118 +157,16 @@ values <- SpatialPointsDataFrame(values[,1:2], values,
 # pts_in_buffer <- over(values, shp_buff[, "ID"])
 
 library(spatialEco)
-# find points inside the buffer
 pts_in_buffer <- point.in.poly(values, shp_buff)
-head(pts_in_buffer@data)
-data_points <- pts_in_buffer@data 
-names(data_points)
 
+pts_in_buffer <- as.data.frame(pts_in_buffer)
+pts_in_buffer <- pts_in_buffer %>%
+  filter(values > 0)
 
-# Aggregate by zone/polygon
-data_points <- pts_in_buffer@data 
-names(data_points)
+#### Sum of points in the circular buffer (each point correspond to an area of ~ 1km)
+data_points <- pts_in_buffer %>% 
+  dplyr::summarize(sum = sum(values))
 
-data_points <- data_points %>% 
-  dplyr::group_by(ID) %>% 
-  dplyr::summarise(sum = sum(values)) %>% 
-  dplyr::ungroup()
-
-
-# Join aggregation to polygons 
-shp_buff@data <- shp_buff@data %>% 
-  left_join(data_points, "ID")
-
-# Filter out polygons with no data
-data_points <- subset(data_points, !is.na(sum))
-
-
-# Transform projection system (British projections)
-# shp <- spTransform(shp, "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
-plot(data_points)
-
-# Export shp file
-head(shp_buff@data)
-# writeOGR(shp_buff,"Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts",
-#          "Sum_Stats", driver = "ESRI Shapefile",
-#          overwrite_layer = TRUE)
-
-
-data_points <- shp_buff@data[,c("ID","sum")]
-row.names(data_points) <- row.names(shp_buff)
-
-shp_buff <- SpatialPolygonsDataFrame(shp_buff, data=data_points)
-
-row.names(shp_buff)
-row.names(data_points)
-
-
-#### Write GeoJSON for Leaflet application ############################
-
-# ----- Write data to GeoJSON
-dir <- "Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts"
-leafdat <- paste(dir, "/",  ".geojson_SUMMARY_STATS", sep="") 
-leafdat
-
-####  ATT !!!!! erase existing .geojson file when re-runing code ######
-writeOGR(shp_buff, leafdat, layer="", driver="GeoJSON")  ## erase existing .geojson file when re-runing code 
-
-
-#### Plot Jeojson with leaflet
-SUMMARY_STATS <- readOGR("Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts/.geojson_SUMMARY_STATS", "OGRGeoJSON")
-
-
-
-
-map_SUMMARY_STATS <- leaflet(SUMMARY_STATS)
-
-#### colors for map
-qpal_SUMMARY <- colorQuantile("Reds", SUMMARY_STATS$sum, n = 7)
-
-#### colors for legend (continuous)
-pal_SUMMARY <- colorNumeric(
-  palette = "Reds",
-  domain = SUMMARY_STATS$sum)
-
-popup_SUMMARY <- paste0("<p><strong>daily Emirate: </strong>", 
-                        SUMMARY_STATS$ID, 
-                         "<br><strong>AQI PM<sub>2.5</sub>: </strong>", 
-                        SUMMARY_STATS$sum)
-
-
-####### CREATE map #######################################################
-
-map = leaflet(SUMMARY_STATS) %>% 
-  addTiles(group = "OSM (default)") %>%
-  addProviderTiles("OpenStreetMap.Mapnik", group = "Road map") %>%
-  addProviderTiles("Thunderforest.Landscape", group = "Topographical") %>%
-  addProviderTiles("Esri.WorldImagery", group = "Satellite") %>%
-  addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
-  
-  
-  # PM2.5 satellite data 
-  addPolygons(stroke = TRUE, smoothFactor = 0.2, 
-              fillOpacity = 0.5, 
-              color = ~ qpal_SUMMARY(sum),
-              weight = 2,
-              popup = popup_SUMMARY,
-              group = "SUMMARY_STATS") %>%
-
-
-  # Layers control
-  addLayersControl(
-    baseGroups = c("Road map", "Topographical", "Satellite", "Toner Lite"),
-    overlayGroups = c("SUMMARY_STATS"),
-    options = layersControlOptions(collapsed = FALSE))
-
-map
-
-
-#### to export into html file, use the button in the Wiever window: 
-#### "save as Web Page"...PM25_Sat_new
-
-saveWidget(map,
-           file="Z:/_SHARED_FOLDERS/Air Quality/Phase 2/DUST SEVIRI/R_scripts/Buffer_SUMS.html",
-           selfcontained = FALSE)
 
 
 
