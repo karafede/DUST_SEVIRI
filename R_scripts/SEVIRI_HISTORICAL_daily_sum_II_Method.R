@@ -28,10 +28,11 @@ output_dir <- "F:/Historical_DUST/SEVIRI_DUST_MASK_outputs/daily_sum_II_Method"
 patt <- ".nc"
 filenames <- list.files(pattern = patt)
 # filenames <- filenames[1] 
-# filenames <- filenames[3748] # 96 scenes  20150331
+# filenames <- filenames[3746] # 96 scenes  20150331
 n <- length(filenames)
+filenames <- filenames[2377:n] # from 20110791 (96 images)
 # filenames <- filenames[2041:n]
-filenames <- filenames[4366:n]
+# filenames <- filenames[4366:n]
 
 # get the date from the filename
 # year <- str_sub(filenames, start = 8, end = -17)
@@ -97,38 +98,73 @@ filenames <- filenames[4366:n]
      nc_close(seviri_file)
      remove(seviri_file)
      
+     LON <- as.vector(LON)
+     LAT <- as.vector(LAT)
+     
+     #  make matrix with LAT  & LONG
+     LAT <- matrix(LAT,nrow=1500,ncol=1500,byrow=TRUE)
+     LAT <- t(LAT)
+     LON <- matrix(LON,nrow=1500,ncol=1500,byrow=TRUE)
      
      xmn= min(LON)
      xmx=max(LON)
      ymn=min(LAT)
      ymx=max(LAT)
      
-  all_rasters <- stack()    # stack ALL HOURS together in an unique raster
+     all_rasters <- stack()    # stack ALL HOURS together in an unique raster
      
      # i = 1
-   
+     
   for (i in 1:dim(var_value)[3]){      # time dimension (always 96 scenes over one day)
-    r <- raster((var_value[ , , i]), xmn, xmx, ymn,  ymx, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+    M <- var_value[ , , i]
+    LAT <- c(LAT)
+    LON <- c(LON)
+    M <- c(M)
+    # make a vector with lat, lon and data
+    data <- cbind(LON, LAT, M)
+    data <- as.data.frame(data)
+    # subset data for the emirates
+    data <- subset(data, LON <= 58 & LON >= 50 & LAT >= 21 & LAT <= 28)
+    colnames(data) <- c("Lon", "Lat","M")
+    
+    xmn= min(data$Lon)
+    xmx=max(data$Lon)
+    ymn=min(data$Lat)
+    ymx=max(data$Lat)
+    
+    resl_ras <- 0.02
+    colnames(data) <- c('x', 'y', 'z')
+    
+    x.range <- as.numeric(c(xmn, xmx))  # min/max longitude of the interpolation area
+    y.range <- as.numeric(c(ymn, ymx))  # min/max latitude of the interpolation area
+    
+    grd <- expand.grid(x = seq(from = x.range[1], to = x.range[2], by = resl_ras),
+                       y = seq(from = y.range[1]*0.95, to = y.range[2]*0.95, by = resl_ras))  # expand points to grid
+    
+    grd_1<- dplyr::filter(grd, grd$x == grd$x[1])
+    nrow(grd_1)
+    grd_2<- dplyr::filter(grd, grd$y == grd$y[1])
+    nrow(grd_2)
+    
+    r <- raster(xmn=min(data$x), xmx=max(data$x), ymn=min(data$y),
+                ymx=max(data$y), ncol=nrow(grd_2), nrow= nrow(grd_1))
+    
+    r <- rasterize(data[, 1:2], r, data[,3], fun=mean)
+    projection(r) <- CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
     # crop all over the UAE only
     r <- crop(r, extent(shp_UAE))
-    r <- mask(r, shp_UAE)  
-    plot(r)
+    r <- mask(r, shp_UAE) 
+    # plot(r)
+    # plot(shp_UAE, add=TRUE, lwd=1)
+    # writeRaster(r, "SEVIRI_prova.tif", options= "INTERLEAVE=BAND", overwrite=T)
+    
     name_time <- TS[i]
     names(r)<- paste("SEVIRI_", name_time, sep = "")
     all_rasters<- stack(all_rasters,r)
-    
-    # make the sum of all the pixels (this are counts)
-    # indices <- format(as.Date(names(all_rasters), format = "X%Y.%m.%d"), format = "%m")
-    # indices <- as.numeric(indices)
-    # sum all raster together by pixel
-    # sum_rasters <- stackApply(all_rasters, indices, na.rm = T, fun = sum)
-    # plot(sum_rasters)
-    
-    # save data
-    # print(i)
+    # save raster stack (all scenes)
+    writeRaster(all_rasters, paste0(output_dir,"/", name, "_II_Method_scenes.tif") , options= "INTERLEAVE=BAND", overwrite=T)
+    # sum all hours in raster stack
     sum_rasters <- sum(all_rasters, na.rm = TRUE)
-    # sum_rasters <- crop(sum_rasters, extent(shp_UAE))
-    # sum_rasters <- mask(sum_rasters, shp_UAE) 
     plot(sum_rasters)
     writeRaster(sum_rasters, paste0(output_dir,"/", name, "_II_Method_sum.tif") , options= "INTERLEAVE=BAND", overwrite=T)
     # clear memory
