@@ -1,4 +1,4 @@
-n1 = datenum(2015,04,01);   % start date
+n1 = datenum(2015,03,31);   % start date
 n2 = datenum(2015,04,04);   % end date
 
 % [Dust_monthly{1:12}] = deal(zeros(1500));
@@ -26,7 +26,7 @@ for n = n1:n2
     %
     
     
-  for t = n - 8:n - 1 %% the last 8 days for reference   
+  for t = n - 1:n - 1 %% the last 8 days for reference   
        count1 = 0;
        for k =1:4    % loop for the quarter of the day (4 files per day)
            % A1 is T07 and A2 is T09
@@ -181,7 +181,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Create Netcdf files ##############################################
 
-
 % load all seviri data for one day
 
 
@@ -196,30 +195,56 @@ for n = n1:n2
 % load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150403.mat')  
 % load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\RGB_Mask_20150404.mat')  
 
-
-% load Latitude & Longitude
-load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\LAT_20110518.mat')
-load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\LONG_20110518.mat')
-
 %%%% adjusting
 for kk=1:96
 if isempty(Dust_daily_each_time_step{1,kk})
     Dust_daily_each_time_step{1,kk}= NaN(1500,1500);
 end
 end
-%%%% developing in matrix format
 
+% load Latitude & Longitude
+load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\LAT_20110518.mat')
+load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\LONG_20110518.mat')
+
+%{
+% make a vector for LAT and LONG
+LATLAT = 39.999:-0.02:10; % Arabian Peninsula
+LONLON = 30:0.02:59.999;
+
+LONG = reshape(LONG ,length(LATLAT)*length(LONLON),1); % vector
+LAT = reshape(LAT ,length(LATLAT)*length(LONLON),1); % vector
+
+% create a regular grid (vector) of 0.02 resolution
+LAT_GRID = repmat((39.999:-0.02:10),1, length(LONLON));
+LAT_GRID = LAT_GRID';
+LON_GRID = repmat((30:0.02:59.999),length(LATLAT),1);
+LON_GRID = reshape(LON_GRID ,length(LATLAT)*length(LONLON),1);
+
+% regrid data on a regular grid
 dawit=[];
-for jj=1:96 
-  dawit= cat(3, dawit, Dust_daily_each_time_step{jj});
+for jj=1:2
+M = Dust_daily_each_time_step; % matrix
+M_vect = reshape(M{jj}',length(LATLAT)*length(LONLON),1); %%% Vector
+M_vect = double(M_vect);
+M_GRID = griddata(LAT,LONG,(M_vect)',LATLAT,LONLON'); %%% Matrix (gridded data)
+M_GRID(isnan(M_GRID)) = 0;  %%%%% in M_GRID omit NaN or convert NaN to 0!
+dawit= cat(3, dawit, M_GRID);
 end
 
-% daw=dawit(:,:, 5:10);
-%%%% creating the nc file
 
-% se= n1:0.010416666666667:(n1+1-0.010416666666667);
-% day_n=cellstr(datestr(se,'yyyy-mm-dd HH:MM:SS' ));
+LAT = repmat((39.999:-0.02:10),length(LONLON),1);
+LAT = LAT';
+LON = repmat((30:0.02:59.999),length(LATLAT),1);
+%}
 
+%%%% developing in matrix format
+
+%
+ dawit=[];
+ for jj=1:96 
+  dawit= cat(3, dawit, Dust_daily_each_time_step{jj});
+end
+%}
 % filename_nc = ['Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\output_20150402_new\Seviri_',datestr(n1,'yyyymmdd'),'.nc'];
 % ncid=netcdf.create(filename_nc, 'NOCLOBBER');
 
@@ -237,7 +262,7 @@ ncid=netcdf.create(filename_nc,'NETCDF4');
 
 dimid(1)=netcdf.defDim(ncid,'lat',1500);
 dimid(2)=netcdf.defDim(ncid,'lon',1500);
-dimid(3)=netcdf.defDim(ncid,'time',96);
+dimid(3)=netcdf.defDim(ncid,'time',2);
 
 % name of the NetCDF fields
 varid1=netcdf.defVar(ncid, 'SEVIRI_DF' ,'NC_DOUBLE',dimid);
@@ -249,7 +274,8 @@ varid3 = netcdf.defVar(ncid, 'lat', 'NC_DOUBLE', dimid(1));
 
 netcdf.endDef(ncid);
 netcdf.putVar(ncid,varid1,dawit(:,:,:));
-netcdf.putVar(ncid,varid2,LONG(1,:)');
+% netcdf.putVar(ncid,varid2,LONG(1,:)');
+netcdf.putVar(ncid,varid2,LON(1,:)');
 netcdf.putVar(ncid,varid3,LAT(:,1));
 %netcdf.putVar(ncid,varid4,se');
 

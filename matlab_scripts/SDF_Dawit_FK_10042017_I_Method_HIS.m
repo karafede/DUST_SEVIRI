@@ -1,5 +1,7 @@
 n1 = datenum(2015,09,14);   % start date
-n2 = datenum(2017,12,18);   % end date
+% n2 = datenum(2017,12,18);   % end date
+n2 = datenum(2015,09,14);   % end date
+
 
 % [Dust_monthly{1:12}] = deal(zeros(1500));
 %%%% 4 datasets every 15 minutes = 4 x 24 hours = 96......images by day
@@ -175,8 +177,6 @@ save (filename,'Dust_daily_each_time_step', '-v7.3')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%% Create Netcdf files ##############################################
-
-
 % load Latitude & Longitude
 load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\LAT_20110518.mat')
 load('Z:\_SHARED_FOLDERS\Air Quality\Phase 2\DUST SEVIRI\seviri_data_20150402\LONG_20110518.mat')
