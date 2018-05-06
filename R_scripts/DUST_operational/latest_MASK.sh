@@ -1,7 +1,12 @@
 #!/bin/bash
 
-mainPath=/home/mariners/MASKS/
+# generate mask of dust only at DAYTIME
+mainPath_script=/home/mariners/SEVIRI_DUST/ 
+cd $mainPath_script
+Rscript ${mainPath_script}/MASK_DUST_SEVIRI_DAYTIME_I_method_FK_Op.R
 
+
+mainPath=/home/mariners/MASKS/
 cd $mainPath 
 
 # select the latest file

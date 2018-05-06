@@ -1,0 +1,266 @@
+
+library(raster)
+library(rgdal)
+library(stringr)
+library(lubridate)
+library(leaflet)
+library(webshot)
+library(htmlwidgets)
+library(mapview)
+
+
+setwd("/home/mariners/MASKS/")
+# delete previous .tif. files
+patt <- ".tif"
+filenames <- list.files(pattern = patt)
+file.remove(filenames) 
+
+
+setwd("/research/SEVIRI_data_Raw_data/")
+
+
+time <- Sys.time()
+time <- time - 14400
+year <- str_sub(time, start = 0, end = -16)
+month <- str_sub(time, start = 6, end = -13)
+day <- str_sub(time, start = 9, end = -10)
+
+DATE <- date(time)
+
+DATE <- paste0(year,month,day)
+# DATE <- "20171205"
+# DATE <- as.numeric(DATE)
+
+##################
+
+# DATE <- "2017-12-11"
+# DATE <- as.Date(DATE) 
+
+# current_date <- paste0(year,month,day)
+# current_date <- "20171211"
+current_date <- DATE
+
+# R01 and R02 start at 02:00 am
+filenames_T07 <- dir("/research/SEVIRI_data_Raw_data/T07", pattern = current_date)
+filenames_T07 <- filenames_T07[grep(".img", filenames_T07, fixed = T)]
+n <- length(filenames_T07)
+filenames_T07 <- filenames_T07[9:n]
+
+filenames_T09 <- dir("/research/SEVIRI_data_Raw_data/T09", pattern = current_date)
+filenames_T09 <- filenames_T09[grep(".img", filenames_T09, fixed = T)]
+n <- length(filenames_T09)
+filenames_T09 <- filenames_T09[9:n]
+
+filenames_T10 <- dir("/research/SEVIRI_data_Raw_data/T10", pattern = current_date)
+filenames_T10 <- filenames_T10[grep(".img", filenames_T10, fixed = T)]
+n <- length(filenames_T10)
+filenames_T10 <- filenames_T10[9:n]
+
+filenames_T04 <- dir("/research/SEVIRI_data_Raw_data/T04", pattern = current_date)
+filenames_T04 <- filenames_T04[grep(".img", filenames_T04, fixed = T)]
+n <- length(filenames_T04)
+filenames_T04 <- filenames_T04[9:n]
+
+filenames_R01 <- dir("/research/SEVIRI_data_Raw_data/R01", pattern = current_date)
+filenames_R01 <- filenames_R01[grep(".img", filenames_R01, fixed = T)]
+filenames_R02 <- dir("/research/SEVIRI_data_Raw_data/R02", pattern = current_date)
+filenames_R02 <- filenames_R02[grep(".img", filenames_R02, fixed = T)]
+
+filenames_R03 <- dir("/research/SEVIRI_data_Raw_data/R03", pattern = current_date)
+filenames_R03 <- filenames_R03[grep(".img", filenames_R03, fixed = T)]
+n <- length(filenames_R03)
+filenames_R03 <- filenames_R03[9:n]
+
+
+##################################
+# load solar zenith angle data ###
+##################################
+
+# extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
+# 
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
+# 
+# # Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
+# # Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+# 
+# # daytime
+# year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
+# month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
+# day <- str_sub(Solar_Zenith_DAYTIME, start = 9, end = -10)
+# hour <- str_sub(Solar_Zenith_DAYTIME, start = 12, end = -7)
+# minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
+# Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
+# Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
+
+### nighttime
+# year <- str_sub(Solar_Zenith_NIGHTTIME, start = 0, end = -16)
+# month <- str_sub(Solar_Zenith_NIGHTTIME, start = 6, end = -13)
+# day <- str_sub(Solar_Zenith_NIGHTTIME, start = 9, end = -10)
+# hour <- str_sub(Solar_Zenith_NIGHTTIME, start = 12, end = -7)
+# minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
+# Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
+# Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
+
+
+# if (nrow(Solar_Zenith_DAYTIME)==0) {
+#   Solar_Zenith_DAYTIME <- "AAA"
+# }
+# 
+# 
+# # find matches between seviri bands @ nighttime 
+# filenames_T07 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+#                               filenames_T07, value=TRUE))
+# filenames_T09 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+#                               filenames_T09, value=TRUE))
+# filenames_T10 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+#                               filenames_T10, value=TRUE))
+# filenames_T04 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+#                               filenames_T04, value=TRUE))
+# filenames_R01 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+#                               filenames_R01, value=TRUE))
+# filenames_R02 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+#                               filenames_R02, value=TRUE))
+# filenames_R03 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
+#                               filenames_R03, value=TRUE))
+
+
+#########################################################################################
+
+
+# x = 3315 lines
+# y = 3712 lines
+
+LON <- seq(from= 30.0055, to = 59.9945, by =0.009047)  #3315
+LAT <- seq(from= 10.0065, to = 39.9949, by =0.008079)  #3712
+xmn = min(LON)
+xmx = max(LON)
+ymn = min(LAT)
+ymx = max(LAT)
+
+# make an empty matrix
+Missing_file <- data.frame(matrix(0, ncol = 1, nrow = 30))
+
+
+# inizialize an empty raster stack for each DAY  
+# all_rasters <- stack() 
+count1 <- 0
+
+# i <- 10
+
+for (i in 1:length(filenames_T07)) {
+  
+
+count2 <- 0
+count3 <- 0
+
+
+  remove(A1, A2, A3, A4, R01, R02, R03)
+  
+  tryCatch({
+    A1 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T10/",filenames_T10[i]))
+    A1 <- as.matrix(A1)+273
+  }, error= function(err) { print(paste0("no band T10"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_T10[i]
+  })
+  
+  tryCatch({
+    A2 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T09/",filenames_T09[i]))
+    A2 <- as.matrix(A2)+273
+    
+  }, error= function(err) { print(paste0("no band T09"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_T09[i]
+  })
+  
+  tryCatch({
+    A3 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T07/",filenames_T07[i]))
+    A3 <- as.matrix(A3)+273
+  }, error= function(err) { print(paste0("no band T07"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_T07[i]
+  })
+  
+  
+  tryCatch({
+    A4 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/T04/",filenames_T04[i]))
+    A4 <- as.matrix(A4)+273
+  }, error= function(err) { print(paste0("no band T04"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_T04[i]
+  })
+  
+  
+  tryCatch({
+    R01 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/R01/",filenames_R01[i]))
+    R01 <- as.matrix(R01)+273
+  }, error= function(err) { print(paste0("no band R01"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_R01[i]
+  })
+  
+  
+  tryCatch({
+    R02 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/R02/",filenames_R02[i]))
+    R02 <- as.matrix(R02)+273
+  }, error= function(err) { print(paste0("no band R02"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_R02[i]
+  })
+  
+  
+  tryCatch({
+    R03 <- readGDAL(paste0("/research/SEVIRI_data_Raw_data/R03/",filenames_R03[i]))
+    R03 <- as.matrix(R03)+273
+  }, error= function(err) { print(paste0("no band R03"))
+  }, finally = { 
+    count3 <- count3 + 1;
+    Missing_file = filenames_R03[i]
+  })
+  
+
+  # original Meteofrance Algorithm
+  TB039_TB108 = A4 - A2
+  TB120_TB108 = A1 - A2
+  R006_R016 = R01 / R03
+  R01_P3 = R01
+  TB087_TB108 = A3 - A2
+  Dust_daily_each_time_step <- ((((TB039_TB108 > -10) & (TB120_TB108 > 2.5)) | ((TB039_TB108 > 12) & (TB120_TB108 > 0.6))) | (((TB120_TB108 > -1) & (TB087_TB108 > -1) &  (R006_R016 < 0.8)) | ((TB120_TB108 > -1) & (TB087_TB108 > min(-1,2.5-0.18*R01_P3)) & (R006_R016 < 0.7))))
+  
+  
+  MASK <- Dust_daily_each_time_step*1
+  MASK[is.na(MASK)] <- 0
+  max(MASK)
+  #  MASK[MASK == 0] <- 0
+  
+  
+  DUST_mask <-  t(MASK[ , ])
+  DUST_mask_a <- raster(DUST_mask, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
+  # plot(DUST_mask)
+  
+  
+  # make and SAVE a geotiff raster
+  writeRaster(DUST_mask_a, paste0("/home/mariners/MASKS/",
+                                  str_sub(filenames_R01[i], start = 1, end = -19),
+                                  "_MASK.tif") , options= "INTERLEAVE=BAND", overwrite=T)
+  
+  
+}
+
+
+# remove files containing NA
+
+setwd("/home/mariners/RGB_masks_tif/")
+patt <- "NA"
+filenames_NA <- list.files(pattern = patt)
+file.remove(filenames_NA) 
+
+
+
