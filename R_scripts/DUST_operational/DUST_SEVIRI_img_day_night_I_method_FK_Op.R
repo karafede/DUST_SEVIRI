@@ -15,7 +15,7 @@ RECREMA_dir_SEVIRI_MASK_DUST <- "/home/mariners/RECREMA_MASKS_DUST/"
 # delete previous .tif. files
 patt <- ".tif"
 filenames <- list.files(pattern = patt)
-file.remove(filenames) 
+# file.remove(filenames) 
 
 
 setwd("/research/SEVIRI_data_Raw_data/")
@@ -31,7 +31,6 @@ DATE <- date(time)
 DATE <- paste0(year,month,day)
 # DATE <- "20171205"
 # DATE <- as.numeric(DATE)
-
 
 #load shape UAE file from RECREMA team
 dir <- "/home/mariners/SEVIRI_DUST/UAE_moccae_domain/"
@@ -67,7 +66,7 @@ filenames_T10 <- filenames_T10[9:n]
 filenames_T04 <- dir("/research/SEVIRI_data_Raw_data/T04", pattern = current_date)
 filenames_T04 <- filenames_T04[grep(".img", filenames_T04, fixed = T)]
 n <- length(filenames_T04)
-filenames_T04 <- filenames_T04[9:n]
+filenames_T04 <- filenames_T04[9:n]   # 0.37um IR band
 
 filenames_R01 <- dir("/research/SEVIRI_data_Raw_data/R01", pattern = current_date)
 filenames_R01 <- filenames_R01[grep(".img", filenames_R01, fixed = T)]
@@ -80,32 +79,26 @@ n <- length(filenames_R03)
 filenames_R03 <- filenames_R03[9:n]
 
 
-
 ##################################
 # load solar zenith angle data ###
 ##################################
 
-extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
+# extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_Zenith.csv")
 
-# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
-# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
+
 # Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
 # Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
-Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 85]
-Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 85]
-
-
-# daytime
-year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
-month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
-day <- str_sub(Solar_Zenith_DAYTIME, start = 9, end = -10)
-hour <- str_sub(Solar_Zenith_DAYTIME, start = 12, end = -7)
-minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
-Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
-Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
-
-
-### nighttime
+# 
+# # daytime
+# # year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
+# # month <- str_sub(Solar_Zenith_DAYTIME, start = 6, end = -13)
+# # day <- str_sub(Solar_Zenith_DAYTIME, start = 9, end = -10)
+# # hour <- str_sub(Solar_Zenith_DAYTIME, start = 12, end = -7)
+# # minutes <- str_sub(Solar_Zenith_DAYTIME, start = 15, end = -4)
+# # Solar_Zenith_DAYTIME <- paste0(year, month, day, hour, minutes)
+# # Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
+# 
+# ### nighttime
 # year <- str_sub(Solar_Zenith_NIGHTTIME, start = 0, end = -16)
 # month <- str_sub(Solar_Zenith_NIGHTTIME, start = 6, end = -13)
 # day <- str_sub(Solar_Zenith_NIGHTTIME, start = 9, end = -10)
@@ -113,28 +106,37 @@ Solar_Zenith_DAYTIME <- as.data.frame(Solar_Zenith_DAYTIME)
 # minutes <- str_sub(Solar_Zenith_NIGHTTIME, start = 15, end = -4)
 # Solar_Zenith_NIGHTTIME <- paste0(year, month, day, hour, minutes)
 # Solar_Zenith_NIGHTTIME <- as.data.frame(Solar_Zenith_NIGHTTIME)
+# 
+# 
+# if (nrow(Solar_Zenith_NIGHTTIME)==0) {
+# Solar_Zenith_NIGHTTIME <- "AAA"
+# filenames_T07 <- NULL
+# filenames_T09 <- NULL
+# filenames_T10 <- NULL
+# filenames_T04 <- NULL
+# filenames_R01 <- NULL
+# filenames_R02 <- NULL 
+# filenames_R03 <- NULL
+# }
+# 
+# 
+# 
+# # find matches between seviri bands @ nighttime
+# filenames_T07 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
+#                               filenames_T07, value=TRUE))
+# filenames_T09 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
+#                               filenames_T09, value=TRUE))
+# filenames_T10 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
+#                               filenames_T10, value=TRUE))
+# filenames_T04 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
+#                               filenames_T04, value=TRUE))
+# filenames_R01 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
+#                               filenames_R01, value=TRUE))
+# filenames_R02 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
+#                               filenames_R02, value=TRUE))
+# filenames_R03 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME,collapse="|"),
+#                               filenames_R03, value=TRUE))
 
-
-if (nrow(Solar_Zenith_DAYTIME)==0) {
-  Solar_Zenith_DAYTIME <- "AAA"
-}
-
-
-# find matches between seviri bands @ daytime 
-filenames_T07 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_T07, value=TRUE))
-filenames_T09 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_T09, value=TRUE))
-filenames_T10 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_T10, value=TRUE))
-filenames_T04 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_T04, value=TRUE))
-filenames_R01 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_R01, value=TRUE))
-filenames_R02 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_R02, value=TRUE))
-filenames_R03 <- unique (grep(paste(Solar_Zenith_DAYTIME$Solar_Zenith_DAYTIME,collapse="|"), 
-                              filenames_R03, value=TRUE))
 
 
 #########################################################################################
@@ -211,7 +213,6 @@ DATE <- DATE-3
 DATE <- format(DATE, format="%Y%m%d")
 
 # j <- 10
-
 
 for (j in 1:(length(filenames_T07_ref)-1)) {
   remove(A1, A2)
@@ -339,7 +340,7 @@ for (i in 1:(length(filenames_T07)-1)) {
   # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   # Dust_daily_each_time_step <- ((BT108 >= 296) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   # Dust_daily_each_time_step <- ((BT108 >= 293) & (BT120_BT108 >= 0) & (BT120_BT108 <= 2) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-  Dust_daily_each_time_step <- ((BT108 >= 290) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+   Dust_daily_each_time_step <- ((BT108 >= 290) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
 
   
   MASK <- Dust_daily_each_time_step*1
@@ -348,9 +349,21 @@ for (i in 1:(length(filenames_T07)-1)) {
   
   ### best colors for the MASK ###########
   ########################################
-  MASK_RED <- MASK*345
-  MASK_GREEN <- MASK*300
-  MASK_BLUE <- MASK*276
+  
+  ##### need to find a dark mask!!!!! ########
+  # MASK_RED <- MASK*345
+  # MASK_GREEN <- MASK*300
+  # MASK_BLUE <- MASK*276
+  
+  # pink dust
+  MASK_RED <- MASK*255
+  MASK_GREEN <- MASK*96
+  MASK_BLUE <- MASK*202
+  
+  # yellow dust
+  # MASK_RED <- MASK*205
+  # MASK_GREEN <- MASK*300
+  # MASK_BLUE <- MASK*276
   ########################################
   ########################################
   
@@ -363,10 +376,22 @@ for (i in 1:(length(filenames_T07)-1)) {
   min(Dust_daily_each_time_step)
   Dust_daily_each_time_step[Dust_daily_each_time_step == 2] <- 0  #dust flag
   
-  r1 <- R01*Dust_daily_each_time_step + MASK_RED
-  r2 <- R02*Dust_daily_each_time_step + MASK_GREEN
-  r3 <- R03*Dust_daily_each_time_step + MASK_BLUE
+  # r1 <- R01*Dust_daily_each_time_step + MASK_RED
+  # r2 <- R02*Dust_daily_each_time_step + MASK_GREEN
+  # r3 <- R03*Dust_daily_each_time_step + MASK_BLUE
   
+  # FALSE colors for the nighttime (only infrared bands)
+#   r1 <- (B1-B2)*Dust_daily_each_time_step + MASK_RED
+#   r2 <- (B2-B3)*Dust_daily_each_time_step + MASK_GREEN
+# #  r2 <- (B2-A4)*Dust_daily_each_time_step + MASK_GREEN
+#   r3 <- B2*Dust_daily_each_time_step + MASK_BLUE
+  
+  #### no mask #####################################
+  r1 <- (B1-B2)*Dust_daily_each_time_step
+  r2 <- (B2-B3)*Dust_daily_each_time_step
+#  r2 <- (B2-A4)*Dust_daily_each_time_step
+  r3 <- B2*Dust_daily_each_time_step
+  ##################################################
   
   MASK_RED <-  t(MASK_RED)
   MASK_RED <- raster(MASK_RED, 30.1, 59.9, 10.4,  41.55, crs="+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
@@ -393,7 +418,7 @@ for (i in 1:(length(filenames_T07)-1)) {
   # plot(DUST_mask)
   
   # create and RGB image ########
-  rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Green, Blue)
+  rgbRaster <- stack(r1,r2,r3)   #RGB == R03, R02, R01 (Red, Green, Blue)
   # plot an RGB version of the stack
   # raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
   
@@ -402,35 +427,17 @@ for (i in 1:(length(filenames_T07)-1)) {
                                 str_sub(filenames_R01[i], start = 1, end = -19),
                                 "_RGB.tif") , options= "INTERLEAVE=BAND", overwrite=T)
   
-
-  r1 <- crop(r1, extent(UAE_shape))
-  r1<- mask(r1, UAE_shape)
+  ## crop
+  rgbRaster <- crop(rgbRaster, extent(UAE_shape))
+  rgbRaster<- mask(rgbRaster, UAE_shape)
+  
   ## make resolution as for RECREMA file
-  r1 = projectRaster(r1, raster_sample)
+  rgbRaster = projectRaster(rgbRaster, raster_sample)
   
-  r2 <- crop(r2, extent(UAE_shape))
-  r2<- mask(r2, UAE_shape)
-  ## make resolution as for RECREMA file
-  r2 = projectRaster(r2, raster_sample)
-  
-  r3 <- crop(r3, extent(UAE_shape))
-  r3<- mask(r3, UAE_shape)
-  ## make resolution as for RECREMA file
-  r3 = projectRaster(r3, raster_sample)
-  
-  
-  rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Gree, Blue)
-  # plot an RGB version of the stack
-  raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
-  
-
   writeRaster(rgbRaster, paste0(RECREMA_dir_SEVIRI_MASK_DUST,"MASKSDUST_",
                                 str_sub(filenames_R01[i], start = 1, end = -23),"_",
                                 str_sub(filenames_R01[i], start = 9, end = -21),
                                 ".tif") , options= "INTERLEAVE=BAND", overwrite=T)
-  
-#  MASKS_DUST_201807040645.tif  -19
-#  201807040330_MSG4_Test_R02.img
   
   
   # my_leaflet_map <- leaflet() %>%

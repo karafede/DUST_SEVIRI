@@ -10,6 +10,8 @@ library(mapview)
 
 
 setwd("/home/mariners/RGB_masks_tif/")
+RECREMA_dir_SEVIRI_MASK_DUST <- "/home/mariners/RECREMA_MASKS_DUST/"
+
 # delete previous .tif. files
 patt <- ".tif"
 filenames <- list.files(pattern = patt)
@@ -31,6 +33,11 @@ DATE <- paste0(year,month,day)
 # DATE <- as.numeric(DATE)
 
 
+#load shape UAE file from RECREMA team
+dir <- "/home/mariners/SEVIRI_DUST/UAE_moccae_domain/"
+UAE_shape <- readOGR(dsn = dir, layer = "UAE_shape")
+# load sample raster from RECREMA team
+raster_sample <- raster("/home/mariners/SEVIRI_DUST/Sample_RECREMA.tif")
 
 ##################
 
@@ -81,8 +88,10 @@ extracted_Solar_Zenith <-  read.csv("/home/mariners/SEVIRI_DUST/extracted_Solar_
 
 # Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 80]
 # Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 80]
-Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
-Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
+# Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 108]
+# Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 108]
+Solar_Zenith_DAYTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle < 85]
+Solar_Zenith_NIGHTTIME <- extracted_Solar_Zenith$DATETIME[extracted_Solar_Zenith$Zenith_Angle > 85]
 
 # daytime
 # year <- str_sub(Solar_Zenith_DAYTIME, start = 0, end = -16)
@@ -140,8 +149,12 @@ filenames_R03 <- unique(grep(paste(Solar_Zenith_NIGHTTIME$Solar_Zenith_NIGHTTIME
 
 DATE <- date(time)
 # DATE <- as.numeric(DATE)
-start <- DATE-3  # DATE-15
-end <- DATE-1   # DATE-1 (always)
+
+# start <- DATE-3  # DATE-15
+# end <- DATE-1   # DATE-1 (always)
+
+start <- DATE-1  # DATE-15
+end <- DATE   # DATE-1 (always)
 
 # DATE <- format(DATE, format="%Y%m%d")
 # start <- format(start, format="%Y%m%d")
@@ -205,7 +218,7 @@ DATE <- format(DATE, format="%Y%m%d")
 
 # j <- 10
 
-for (j in 1:length(filenames_T07_ref)) {
+for (j in 1:(length(filenames_T07_ref)-1)) {
   remove(A1, A2)
   
 tryCatch({
@@ -249,7 +262,7 @@ count3 <- 0
 
 # i <- 10
 
-for (i in 1:length(filenames_T07)) {
+for (i in 1:(length(filenames_T07)-1)) {
   remove(B1, B2, B3)
   
   tryCatch({
@@ -331,9 +344,9 @@ for (i in 1:length(filenames_T07)) {
   # Dust_daily_each_time_step <- ((BT108 >= 285) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   # Dust_daily_each_time_step <- ((BT108 >= 296) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
   # Dust_daily_each_time_step <- ((BT108 >= 293) & (BT120_BT108 >= 0) & (BT120_BT108 <= 2) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
-   Dust_daily_each_time_step <- ((BT108 >= 291) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
+ 
+  Dust_daily_each_time_step <- ((BT108 >= 290) & (BT120_BT108 >= 0) & (BT108_BT087 <= 10) & (BTD108_087anom <= -2))
 
-  
   MASK <- Dust_daily_each_time_step*1
   max(MASK)
   MASK[MASK == 0] <- 0.000000000001
@@ -417,6 +430,38 @@ for (i in 1:length(filenames_T07)) {
   writeRaster(rgbRaster, paste0("/home/mariners/RGB_masks_tif/",
                                 str_sub(filenames_R01[i], start = 1, end = -19),
                                 "_RGB.tif") , options= "INTERLEAVE=BAND", overwrite=T)
+  
+  
+  r1 <- crop(r1, extent(UAE_shape))
+  r1<- mask(r1, UAE_shape)
+  ## make resolution as for RECREMA file
+  r1 = projectRaster(r1, raster_sample)
+  
+  r2 <- crop(r2, extent(UAE_shape))
+  r2<- mask(r2, UAE_shape)
+  ## make resolution as for RECREMA file
+  r2 = projectRaster(r2, raster_sample)
+  
+  r3 <- crop(r3, extent(UAE_shape))
+  r3<- mask(r3, UAE_shape)
+  ## make resolution as for RECREMA file
+  r3 = projectRaster(r3, raster_sample)
+  
+  
+  rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Gree, Blue)
+  # plot an RGB version of the stack
+  raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
+  
+  
+  ## make resolution as for RECREMA file
+  # rgbRaster = projectRaster(rgbRaster, raster_sample)
+  
+  writeRaster(rgbRaster, paste0(RECREMA_dir_SEVIRI_MASK_DUST,"MASKSDUST_",
+                                str_sub(filenames_R01[i], start = 1, end = -23),"_",
+                                str_sub(filenames_R01[i], start = 9, end = -21),
+                                ".tif") , options= "INTERLEAVE=BAND", overwrite=T)
+
+  
   
   
   # my_leaflet_map <- leaflet() %>%
