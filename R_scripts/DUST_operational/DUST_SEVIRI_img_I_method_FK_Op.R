@@ -36,6 +36,7 @@ DATE <- paste0(year,month,day)
 #load shape UAE file from RECREMA team
 dir <- "/home/mariners/SEVIRI_DUST/UAE_moccae_domain/"
 UAE_shape <- readOGR(dsn = dir, layer = "UAE_shape")
+UAE_shape <- spTransform(UAE_shape, CRS("+init=epsg:4326"))
 # load sample raster from RECREMA team
 raster_sample <- raster("/home/mariners/SEVIRI_DUST/Sample_RECREMA.tif")
 
@@ -421,7 +422,7 @@ for (i in 1:(length(filenames_T07)-1)) {
   
   rgbRaster <- stack(r3,r2,r1)   #RGB == R03, R02, R01 (Red, Gree, Blue)
   # plot an RGB version of the stack
-  raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
+  # raster::plotRGB(rgbRaster,r=1,g=2,b=3, stretch = "lin")
   
 
   writeRaster(rgbRaster, paste0(RECREMA_dir_SEVIRI_MASK_DUST,"MASKSDUST_",

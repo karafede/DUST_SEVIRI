@@ -17,7 +17,11 @@ scp ${dest_folder_RECREMA}/*.tif cesamuser@masdar-stratobus:/data_moccae/weather
 # delete files into dest_folder_RECREMA
 Rscript /home/mariners/SEVIRI_DUST/RECREMA_tif_remover.R
 
-rsync -avz ${dest_folder}/*.tif pvernier@atlas-prod.minet.ae:/home/pvernier/scripts_cron/SEVIRI_dust_RGB 
-rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-web-prod:/data/scripts_cron/SEVIRI_dust_RGB 
+# rsync -avz ${dest_folder}/*.tif pvernier@atlas-prod.minet.ae:/home/pvernier/scripts_cron/SEVIRI_dust_RGB 
+#rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-web-prod:/data/scripts_cron/SEVIRI_dust_RGB 
 rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-web-uat:/data/scripts_cron/SEVIRI_dust_RGB 
 rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-web-dev:/data/scripts_cron/SEVIRI_dust_RGB 
+
+rsync -avz ${dest_folder}/*.tif mjweston@cesam-web-prod:/data/scripts_cron/SEVIRI_dust_RGB 
+#rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-web-uat:/data/scripts_cron/SEVIRI_dust_RGB 
+#rsync -avz ${dest_folder}/*.tif fkaragulian@cesam-web-dev:/data/scripts_cron/SEVIRI_dust_RGB 
